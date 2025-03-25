@@ -1,2 +1,10 @@
+server:
+  port: 6000
 spring:
-  application: name= backend
+  application:
+    name: backend
+  data:
+    mongodb:
+      uri: mongodb+srv://akshay:akshay@cluster0.acasm.mongodb.net?retryWrites=true&w=majority&appName=Cluster0
+      auto-index-creation: true
+      database: fitness_store
