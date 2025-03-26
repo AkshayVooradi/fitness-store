@@ -29,7 +29,12 @@ public class UserController {
     }
 
     @GetMapping("/user/login")
-    public ResponseEntity<?> login(){
-        return new ResponseEntity<>("Logged In successfully", HttpStatus.ACCEPTED);
+    public ResponseEntity<?> login(@RequestBody UserEntity user){
+        return userServices.login(user);
+    }
+
+    @GetMapping("/admin/getUsers")
+    public ResponseEntity<?> getAllUsers(){
+        return userServices.getAllUsers();
     }
 }
