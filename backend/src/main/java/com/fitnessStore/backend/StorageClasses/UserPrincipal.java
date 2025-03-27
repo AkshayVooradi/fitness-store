@@ -1,12 +1,12 @@
-package com.fitnessStore.backend.Entity;
+package com.fitnessStore.backend.StorageClasses;
 
+import com.fitnessStore.backend.Entity.UserEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public class UserPrincipal implements UserDetails {
     private final UserEntity user;

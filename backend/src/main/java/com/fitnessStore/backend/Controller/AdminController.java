@@ -17,7 +17,6 @@ public class AdminController {
 
     @PostMapping("/add")
     public ResponseEntity<?> AddProducts(@RequestBody ProductEntity product, HttpServletRequest request){
-        System.out.println(product+" "+request.getHeader("Authorization"));
         return adminServices.addProduct(product,request.getHeader("Authorization"));
     }
 
@@ -26,9 +25,9 @@ public class AdminController {
         return adminServices.deleteProduct(productTitle,request.getHeader("Authorization"));
     }
 
-    @GetMapping("/getAllProducts")
-    public ResponseEntity<?> RetrieveProducts(HttpServletRequest request){
-        return adminServices.getAllProducts(request.getHeader("Authorization"));
+    @GetMapping("/getAllProducts/{category}")
+    public ResponseEntity<?> RetrieveProducts(@PathVariable String category, HttpServletRequest request){
+        return adminServices.getAllProducts(category,request.getHeader("Authorization"));
     }
 
     @PutMapping("/updateProduct/{productTitle}")

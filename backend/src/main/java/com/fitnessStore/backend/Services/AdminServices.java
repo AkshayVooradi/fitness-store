@@ -3,6 +3,7 @@ package com.fitnessStore.backend.Services;
 import com.fitnessStore.backend.Entity.ProductEntity;
 import com.fitnessStore.backend.Entity.UserEntity;
 import com.fitnessStore.backend.Repository.ProductRepo;
+import com.fitnessStore.backend.apiServices.GetUserByToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,14 +49,14 @@ public class AdminServices {
 
     }
 
-    public ResponseEntity<?> getAllProducts(String authHeader) {
+    public ResponseEntity<?> getAllProducts(String category, String authHeader) {
         UserEntity user = userByToken.userDetails(authHeader);
 
         if(!user.getRole().equals("ADMIN")){
             return new ResponseEntity<>("Unauthorized user",HttpStatus.UNAUTHORIZED);
         }
 
-        return new ResponseEntity<>(productRepo.findAll(),HttpStatus.OK);
+        return new ResponseEntity<>(productRepo.findByCategory(category),HttpStatus.OK);
     }
 
     public ResponseEntity<?> updateProduct(String productTitle, ProductEntity newProduct, String authHeader) {

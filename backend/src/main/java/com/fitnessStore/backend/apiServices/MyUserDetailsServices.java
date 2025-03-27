@@ -1,34 +1,30 @@
 package com.fitnessStore.backend.apiServices;
 
 import com.fitnessStore.backend.Entity.UserEntity;
-import com.fitnessStore.backend.Repository.ProductRepo;
 import com.fitnessStore.backend.Repository.UserRepo;
 import com.fitnessStore.backend.StorageClasses.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-
 @Service
-public class GetUserByToken {
-
-    @Autowired
-    private JWTServices jwtServices;
+public class MyUserDetailsServices implements UserDetailsService {
 
     @Autowired
     private UserRepo userRepo;
 
-    public UserEntity userDetails(String authHeader){
-        String token = null;
-        String email = null;
 
-        token = authHeader.substring(7);
-        email = jwtServices.extractEmail(token);
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UserEntity user = userRepo.findByEmail(email);
 
-        return userRepo.findByEmail(email);
+        if(user==null){
+            System.out.println("User Not found");
+            throw new UsernameNotFoundException("User Not Found");
+        }
+
+        return new UserPrincipal(user);
     }
 }

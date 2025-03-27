@@ -1,6 +1,7 @@
 package com.fitnessStore.backend.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fitnessStore.backend.StorageClasses.AddressClass;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -43,14 +44,13 @@ public class UserEntity {
 
     @DBRef
     @Field("cart_id")
+    @JsonIgnore
     private CartEntity cart;
 
-    @DBRef
-    @Field("address_id")
-    private List<AddressEntity> address=new ArrayList<>();
+    private List<AddressClass> address=new ArrayList<>();
 
     @DBRef
-    private List<OrderEntity> orders;
+    private List<OrderEntity> orders = new ArrayList<>();
 
     @DBRef
     private List<ReviewEntity> reviews = new ArrayList<>();

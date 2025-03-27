@@ -1,6 +1,7 @@
 package com.fitnessStore.backend.Config;
 
-import com.fitnessStore.backend.Services.MyUserDetailsServices;
+import com.fitnessStore.backend.apiServices.GetUserByToken;
+import com.fitnessStore.backend.apiServices.MyUserDetailsServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +33,7 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/user/signUp","/api/user/login")
+                        .requestMatchers("/api/user/signUp","/api/user/login","/api/product/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated()

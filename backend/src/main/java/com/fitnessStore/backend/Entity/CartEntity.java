@@ -1,6 +1,7 @@
 package com.fitnessStore.backend.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fitnessStore.backend.StorageClasses.CartItemClass;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,10 +25,9 @@ public class CartEntity {
     private ObjectId id;
 
     @DBRef
-    @JsonIgnore
     @Field("user_id")
+    @JsonIgnore
     private UserEntity user;
 
-    @DBRef
-    private List<ProductEntity> products;
+    private List<CartItemClass> products;
 }

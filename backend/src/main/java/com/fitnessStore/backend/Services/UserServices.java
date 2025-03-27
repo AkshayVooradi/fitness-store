@@ -2,6 +2,8 @@ package com.fitnessStore.backend.Services;
 
 import com.fitnessStore.backend.Entity.UserEntity;
 import com.fitnessStore.backend.Repository.UserRepo;
+import com.fitnessStore.backend.apiServices.GetUserByToken;
+import com.fitnessStore.backend.apiServices.JWTServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,8 @@
 package com.fitnessStore.backend.Config;
 
-import com.fitnessStore.backend.Services.JWTServices;
-import com.fitnessStore.backend.Services.MyUserDetailsServices;
+import com.fitnessStore.backend.apiServices.GetUserByToken;
+import com.fitnessStore.backend.apiServices.JWTServices;
+import com.fitnessStore.backend.apiServices.MyUserDetailsServices;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
