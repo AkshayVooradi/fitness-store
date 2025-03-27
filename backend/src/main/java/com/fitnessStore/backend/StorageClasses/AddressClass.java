@@ -15,11 +15,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document(collection = "address_entity")
-public class AddressEntity {
-    @Id
-    private ObjectId id;
 
+public class AddressClass {
     private String streetAddress;
 
     private String city;
@@ -28,8 +25,4 @@ public class AddressEntity {
 
     private String zipcode;
 
-    @DBRef
-    @JsonIgnore
-    @Field("user_id")
-    private UserEntity user;
 }
