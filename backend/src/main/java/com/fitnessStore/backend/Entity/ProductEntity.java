@@ -37,7 +37,7 @@ public class ProductEntity {
 
     private String description;
 
-    private String imageUrl;
+    private List<String> imageUrl;
 
     private int stock;
 

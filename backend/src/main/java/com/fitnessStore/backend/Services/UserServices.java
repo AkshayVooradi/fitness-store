@@ -23,6 +23,9 @@ public class UserServices {
     @Autowired
     private AuthenticationManager manager;
 
+    @Autowired
+    private GetUserByToken userByToken;
+
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public ResponseEntity<?> SignUp(UserEntity user){
@@ -40,7 +43,13 @@ public class UserServices {
                 : new ResponseEntity<>("Unauthorized User",HttpStatus.UNAUTHORIZED);
     }
 
-    public ResponseEntity<?> getAllUsers() {
+    public ResponseEntity<?> getAllUsers(String authHeader) {
+        UserEntity user = userByToken.userDetails(authHeader);
+
+        if(!user.getRole().equals("ADMIN")){
+            return new ResponseEntity<>("Unauthorized User",HttpStatus.UNAUTHORIZED);
+        }
+
         return new ResponseEntity<>(userRepo.findAll(),HttpStatus.OK);
     }
 }

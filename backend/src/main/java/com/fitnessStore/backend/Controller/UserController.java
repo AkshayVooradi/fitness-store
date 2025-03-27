@@ -2,6 +2,7 @@ package com.fitnessStore.backend.Controller;
 
 import com.fitnessStore.backend.Entity.UserEntity;
 import com.fitnessStore.backend.Services.UserServices;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping("/admin/getUsers")
-    public ResponseEntity<?> getAllUsers(){
-        return userServices.getAllUsers();
+    public ResponseEntity<?> getAllUsers(HttpServletRequest request){
+        return userServices.getAllUsers(request.getHeader("Authorization"));
     }
 }
