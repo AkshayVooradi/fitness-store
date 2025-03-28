@@ -1,6 +1,8 @@
 package com.fitnessStore.backend.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fitnessStore.backend.StorageClasses.AddressClass;
+import com.fitnessStore.backend.StorageClasses.CartItemClass;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +11,9 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -22,11 +26,15 @@ public class OrderEntity {
     private ObjectId id;
 
     @DBRef
+    @Field("user_id")
     @JsonIgnore
     private UserEntity user;
 
-    @DBRef
-    private List<ProductEntity> products;
+    private List<CartItemClass> products;
 
-    private String status;
+    private LocalDateTime createdAt;
+
+    private AddressClass address;
+
+    private double totalCost;
 }

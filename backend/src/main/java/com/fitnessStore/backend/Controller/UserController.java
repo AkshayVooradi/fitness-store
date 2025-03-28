@@ -38,4 +38,14 @@ public class UserController {
     public ResponseEntity<?> getAllUsers(HttpServletRequest request){
         return userServices.getAllUsers(request.getHeader("Authorization"));
     }
+
+    @GetMapping("/user/orders")
+    public ResponseEntity<?> getOrders(HttpServletRequest request){
+        return userServices.getOrders(request.getHeader("Authorization"));
+    }
+
+    @GetMapping("/user/address")
+    public ResponseEntity<?> getAddress(HttpServletRequest request){
+        return userServices.getAddress(request.getHeader("Authorization"));
+    }
 }

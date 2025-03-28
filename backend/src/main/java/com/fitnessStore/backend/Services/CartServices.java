@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CartServices {
@@ -54,14 +55,36 @@ public class CartServices {
             return new ResponseEntity<>("No such product found with name "+productTitle,HttpStatus.NOT_FOUND);
         }
 
-        CartItemClass item = CartItemClass.builder()
-                .product(product)
-                .quantity(quantity)
-                .build();
 
-        cart.getProducts().add(item);
+        List<CartItemClass> products = cart.getProducts();
 
-        return new ResponseEntity<>(cartRepo.save(cart), HttpStatus.OK);
+        boolean present=false;
+
+        CartItemClass newItem = null;
+
+        //if product is already present inside the cart
+        for(CartItemClass prod: products){
+            if(prod.getProduct().equals(product)){
+                prod.setQuantity(prod.getQuantity()+quantity);
+                prod.setCost(prod.getQuantity()*prod.getProduct().getPrice());
+                present=true;
+                newItem=prod;
+                break;
+            }
+        }
+
+        if(!present) {
+            CartItemClass item = CartItemClass.builder()
+                    .product(product)
+                    .quantity(quantity)
+                    .cost(quantity*product.getPrice())
+                    .build();
+            cart.getProducts().add(item);
+            newItem=item;
+        }
+        cartRepo.save(cart);
+
+        return new ResponseEntity<>(newItem, HttpStatus.OK);
     }
 
     public ResponseEntity<?> getProducts(String authHeader) {
@@ -69,7 +92,7 @@ public class CartServices {
 
         CartEntity cart = user.getCart();
 
-        if(cart == null){
+        if(cart == null || cart.getProducts().isEmpty()){
             return new ResponseEntity<>("Cart is Empty",HttpStatus.BAD_REQUEST);
         }
 
@@ -111,6 +134,7 @@ public class CartServices {
         for(CartItemClass item : cart.getProducts()){
             if(item.getProduct().equals(product)){
                 item.setQuantity(quantity);
+                item.setCost(quantity*product.getPrice());
                 updated = true;
                 break;
             }

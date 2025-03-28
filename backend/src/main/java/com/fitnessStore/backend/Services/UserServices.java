@@ -1,7 +1,9 @@
 package com.fitnessStore.backend.Services;
 
+import com.fitnessStore.backend.Entity.OrderEntity;
 import com.fitnessStore.backend.Entity.UserEntity;
 import com.fitnessStore.backend.Repository.UserRepo;
+import com.fitnessStore.backend.StorageClasses.AddressClass;
 import com.fitnessStore.backend.apiServices.GetUserByToken;
 import com.fitnessStore.backend.apiServices.JWTServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class UserServices {
@@ -53,5 +58,29 @@ public class UserServices {
         }
 
         return new ResponseEntity<>(userRepo.findAll(),HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getOrders(String authorization) {
+        UserEntity user = userByToken.userDetails(authorization);
+
+        List<OrderEntity> orders = user.getOrders();
+
+        if(orders.isEmpty()){
+            return new ResponseEntity<>("No previous Orders",HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(orders,HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getAddress(String authorization) {
+        UserEntity user = userByToken.userDetails(authorization);
+
+        Set<AddressClass> address = user.getAddress();
+
+        if(address.isEmpty()){
+            return new ResponseEntity<>("No address Found",HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(address,HttpStatus.OK);
     }
 }

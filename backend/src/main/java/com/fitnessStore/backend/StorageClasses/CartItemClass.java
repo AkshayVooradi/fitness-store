@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,4 +23,10 @@ public class CartItemClass {
     private int quantity;
 
     private String size;
+
+    private double cost;
+
+    private String status;
+
+    private LocalDateTime deliveredAt;
 }

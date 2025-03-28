@@ -15,7 +15,9 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -47,7 +49,8 @@ public class UserEntity {
     @JsonIgnore
     private CartEntity cart;
 
-    private List<AddressClass> address=new ArrayList<>();
+
+    private Set<AddressClass> address=new HashSet<>();
 
     @DBRef
     private List<OrderEntity> orders = new ArrayList<>();
