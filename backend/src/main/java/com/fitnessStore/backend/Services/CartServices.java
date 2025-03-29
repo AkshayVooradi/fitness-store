@@ -44,8 +44,8 @@ public class CartServices {
                     .user(user)
                     .products(new ArrayList<>())
                     .build();
-            user.setCart(cart);
             cartRepo.save(cart);
+            user.setCart(cart);
             userRepo.save(user);
         }
 
@@ -54,7 +54,6 @@ public class CartServices {
         if(product == null){
             return new ResponseEntity<>("No such product found with name "+productTitle,HttpStatus.NOT_FOUND);
         }
-
 
         List<CartItemClass> products = cart.getProducts();
 
@@ -82,6 +81,7 @@ public class CartServices {
             cart.getProducts().add(item);
             newItem=item;
         }
+
         cartRepo.save(cart);
 
         return new ResponseEntity<>(newItem, HttpStatus.OK);

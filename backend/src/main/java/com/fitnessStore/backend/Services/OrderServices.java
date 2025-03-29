@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,7 +39,6 @@ public class OrderServices {
 
     @Autowired
     private CartRepo cartRepo;
-
 
     public ResponseEntity<?> createOrder(AddressClass addressData, String authorization) {
 
@@ -74,10 +74,14 @@ public class OrderServices {
             if(item.getQuantity()>item.getProduct().getStock()){
                 return new ResponseEntity<>("Currently the stock for product "+item.getProduct().getTitle()+" is "+item.getProduct().getStock()+". Your quantity "+item.getQuantity()+" is much more",HttpStatus.BAD_REQUEST);
             }
+            totalCost+=item.getCost();
+        }
+
+        //to make sure stocks are getting updated correctly
+        for(CartItemClass item : items){
             ProductEntity product = item.getProduct();
             product.setStock(product.getStock()- item.getQuantity());
             productRepo.save(product);
-            totalCost+=item.getCost();
         }
 
         orderEntity.setTotalCost(totalCost);

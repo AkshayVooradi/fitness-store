@@ -48,4 +48,9 @@ public class UserController {
     public ResponseEntity<?> getAddress(HttpServletRequest request){
         return userServices.getAddress(request.getHeader("Authorization"));
     }
+
+    @GetMapping("/user/reviews")
+    public ResponseEntity<?> getReviews(HttpServletRequest request){
+        return userServices.getReviews(request.getHeader("Authorization"));
+    }
 }

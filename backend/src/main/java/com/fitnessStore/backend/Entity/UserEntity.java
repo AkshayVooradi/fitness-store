@@ -2,10 +2,7 @@ package com.fitnessStore.backend.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fitnessStore.backend.StorageClasses.AddressClass;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -57,4 +54,7 @@ public class UserEntity {
 
     @DBRef
     private List<ReviewEntity> reviews = new ArrayList<>();
+
+    @DBRef
+    private List<ProductEntity> products = new ArrayList<>();
 }

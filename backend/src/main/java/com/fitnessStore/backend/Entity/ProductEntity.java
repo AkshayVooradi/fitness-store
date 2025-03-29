@@ -41,7 +41,9 @@ public class ProductEntity {
 
     private int stock;
 
-    private double sumOfRatings;
+    private double AverageRating = 0;
+
+    private double sumOfRatings = 0;
 
     @DBRef
     @JsonIgnore
