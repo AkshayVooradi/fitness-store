@@ -3,6 +3,8 @@ package com.fitnessStore.backend.Services;
 import com.fitnessStore.backend.Entity.OrderEntity;
 import com.fitnessStore.backend.Entity.ProductEntity;
 import com.fitnessStore.backend.Entity.UserEntity;
+import com.fitnessStore.backend.ExceptionHandling.InputArgumentException;
+import com.fitnessStore.backend.ExceptionHandling.ResourceNotFoundException;
 import com.fitnessStore.backend.Repository.OrderRepo;
 import com.fitnessStore.backend.Repository.ProductRepo;
 import com.fitnessStore.backend.Repository.UserRepo;
@@ -42,6 +44,10 @@ public class AdminServices {
             return new ResponseEntity<>("Unauthorized user",HttpStatus.UNAUTHORIZED);
         }
 
+        if(product == null){
+            throw new InputArgumentException("Product is empty");
+        }
+
         return new ResponseEntity<>(productRepo.save(product),HttpStatus.CREATED);
     }
 
@@ -52,10 +58,14 @@ public class AdminServices {
             return new ResponseEntity<>("Unauthorized user",HttpStatus.UNAUTHORIZED);
         }
 
+        if(productTitle.isEmpty()){
+            throw new InputArgumentException("Product title is empty");
+        }
+
         ProductEntity product = productRepo.findByTitle(productTitle);
 
         if(product == null){
-            return new ResponseEntity<>("Product Not Found",HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("product not found with the given title");
         }
 
         productRepo.delete(product);
@@ -71,6 +81,10 @@ public class AdminServices {
             return new ResponseEntity<>("Unauthorized user",HttpStatus.UNAUTHORIZED);
         }
 
+        if(category.isEmpty()){
+            throw new InputArgumentException("Category is empty");
+        }
+
         return new ResponseEntity<>(productRepo.findByCategory(category),HttpStatus.OK);
     }
 
@@ -81,10 +95,15 @@ public class AdminServices {
             return new ResponseEntity<>("Unauthorized user",HttpStatus.UNAUTHORIZED);
         }
 
+
         ProductEntity product = productRepo.findByTitle(productTitle);
 
         if(product == null){
-            return new ResponseEntity<>("Product Not Found",HttpStatus.NOT_FOUND);
+            throw new InputArgumentException("Product title is empty");
+        }
+
+        if(newProduct == null){
+            throw new InputArgumentException("new product is empty");
         }
 
         if(newProduct.getPrice() != 0){
@@ -111,21 +130,21 @@ public class AdminServices {
             return new ResponseEntity<>("You are not allowed to modify",HttpStatus.UNAUTHORIZED);
         }
 
+        if(userName.isEmpty()){
+            throw new InputArgumentException("Username is empty");
+        }
+
         UserEntity user = userRepo.findByUsername(userName);
 
         if(user == null){
             return new ResponseEntity<>("User not found with name "+userName,HttpStatus.NOT_FOUND);
         }
 
-        System.out.println(user.getUsername());
-
         ProductEntity product = productRepo.findByTitle(title);
 
         if(product == null){
             return new ResponseEntity<>("Product Not found with name "+title,HttpStatus.NOT_FOUND);
         }
-
-        System.out.println(product.getTitle());
 
         ObjectId objectId = new ObjectId(id);
 
@@ -135,31 +154,20 @@ public class AdminServices {
             return new ResponseEntity<>("Order Not Found with the given id "+objectId,HttpStatus.NOT_FOUND);
         }
 
-        System.out.println(order.get().getUser().getUsername());
-
         List<CartItemClass> items = order.get().getProducts();
-
-        System.out.println(items.size());
 
         boolean updated= false;
 
-        System.out.println(items.get(0).getProduct().getTitle());
-        System.out.println(items.get(0).getStatus());
-
         for(CartItemClass item : items){
-            System.out.println(true);
             if(item.getProduct().getTitle().equals(product.getTitle())){
                 item.setStatus(status);
-                System.out.println(true);
                 if(status.equals("Delivered")){
                     item.setDeliveredAt(LocalDateTime.now());
                     user.getProducts().add(product);
                     userRepo.save(user);
-                    System.out.println(true);
                 }
                 orderRepo.save(order.get());
                 updated=true;
-                System.out.println(true);
                 break;
             }
         }

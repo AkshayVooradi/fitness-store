@@ -1,14 +1,17 @@
 package com.fitnessStore.backend.apiServices;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fitnessStore.backend.ExceptionHandling.IncorrectToken;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Date;
@@ -64,11 +67,33 @@ public class JWTServices {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(getKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            return Jwts.parser()
+                    .verifyWith(getKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        }
+        catch (ExpiredJwtException e){
+            System.out.println("JWT token is expired");
+            throw new IncorrectToken("JWT token is expired");
+        }
+        catch (MalformedJwtException e){
+            System.out.println("JWT token is malformed");
+            throw new IncorrectToken("JWT token is malformed");
+        }
+        catch (io.jsonwebtoken.security.SignatureException e){
+            System.out.println("Invalid JWT signature");
+            throw new IncorrectToken("Invalid JWT signature");
+        }
+        catch (UnsupportedJwtException e){
+            System.out.println("Unsupported JWT token");
+            throw new IncorrectToken("Unsupported JWT token");
+        }
+        catch (IllegalArgumentException e){
+            System.out.println("JWT token is empty");
+            throw new IncorrectToken("JWT token is empty");
+        }
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {

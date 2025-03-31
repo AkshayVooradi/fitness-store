@@ -1,6 +1,5 @@
 package com.fitnessStore.backend.Config;
 
-import com.fitnessStore.backend.apiServices.GetUserByToken;
 import com.fitnessStore.backend.apiServices.MyUserDetailsServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

@@ -3,6 +3,7 @@ package com.fitnessStore.backend.Services;
 import com.fitnessStore.backend.Entity.OrderEntity;
 import com.fitnessStore.backend.Entity.ReviewEntity;
 import com.fitnessStore.backend.Entity.UserEntity;
+import com.fitnessStore.backend.ExceptionHandling.IncorrectToken;
 import com.fitnessStore.backend.Repository.UserRepo;
 import com.fitnessStore.backend.StorageClasses.AddressClass;
 import com.fitnessStore.backend.apiServices.GetUserByToken;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -42,14 +44,17 @@ public class UserServices {
     }
 
     public ResponseEntity<?> login(UserEntity user) {
-        Authentication authentication = manager.authenticate(new UsernamePasswordAuthenticationToken(
-                user.getEmail(),user.getPassword()
-        ));
+        try {
+            Authentication authentication = manager.authenticate(new UsernamePasswordAuthenticationToken(
+                    user.getEmail(), user.getPassword()
+            ));
 
+            return new ResponseEntity<>(jwtServices.generateToken(user.getEmail()), HttpStatus.ACCEPTED);
 
-        return authentication.isAuthenticated() ?
-                new ResponseEntity<>(jwtServices.generateToken(user.getEmail()),HttpStatus.ACCEPTED)
-                : new ResponseEntity<>("Unauthorized User",HttpStatus.UNAUTHORIZED);
+        }catch (AuthenticationException e){
+            System.out.println("Invalid credentials");
+            return new ResponseEntity<>("Invalid Username or password",HttpStatus.UNAUTHORIZED);
+        }
     }
 
     public ResponseEntity<?> getAllUsers(String authHeader) {
