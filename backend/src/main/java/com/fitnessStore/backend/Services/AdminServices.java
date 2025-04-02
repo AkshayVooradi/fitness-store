@@ -15,9 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -36,16 +39,35 @@ public class AdminServices {
     @Autowired
     private OrderRepo orderRepo;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
-    public ResponseEntity<?> addProduct(ProductEntity product, String authHeader) {
+
+    public ResponseEntity<?> addProduct(List<MultipartFile> files,String title,String category,String brand,Double price,Integer discountPercent,String description,Integer stock, String authHeader) {
         UserEntity user = userByToken.userDetails(authHeader);
 
         if(!user.getRole().equals("ADMIN")){
             return new ResponseEntity<>("Unauthorized user",HttpStatus.UNAUTHORIZED);
         }
 
-        if(product == null){
+        if(files.isEmpty() || title.isEmpty() || category.isEmpty() || brand.isEmpty() || price == 0 || discountPercent == 0 || description.isEmpty() || stock==0){
             throw new InputArgumentException("Product is empty");
+        }
+
+        ProductEntity product = ProductEntity.builder()
+                .title(title)
+                .category(category)
+                .brand(brand)
+                .price(price)
+                .discountPercent(discountPercent)
+                .description(description)
+                .stock(stock)
+                .imageUrl(new ArrayList<>())
+                .build();
+
+        for(MultipartFile file: files){
+            Map uploadResult = cloudinaryService.upload(file);
+            product.getImageUrl().add((String) uploadResult.get("secure_url"));
         }
 
         return new ResponseEntity<>(productRepo.save(product),HttpStatus.CREATED);

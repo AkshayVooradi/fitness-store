@@ -15,10 +15,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Component
@@ -38,22 +42,57 @@ public class UserServices {
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    public ResponseEntity<?> SignUp(UserEntity user){
-        user.setRole("USER");
-        return new ResponseEntity<>(userRepo.save(user), HttpStatus.CREATED);
+    public ResponseEntity<?> SignUp(String userName,String email,String password){
+        UserEntity user = UserEntity.builder()
+                .username(userName)
+                .email(email)
+                .password(new BCryptPasswordEncoder().encode(password))
+                .createdAt(LocalDateTime.now())
+                .role("USER")
+                .build();
+        Map<String,Object> responseBody = new HashMap<>();
+        if(userRepo.findByEmail(email) != null){
+            responseBody.put("success",false);
+            responseBody.put("message","User already exists with this mail");
+            return new ResponseEntity<>(responseBody,HttpStatus.OK);
+        }
+
+        userRepo.save(user);
+
+        responseBody.put("success",true);
+        responseBody.put("message","Registration successful");
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
-    public ResponseEntity<?> login(UserEntity user) {
+    public ResponseEntity<?> login(String email,String password) {
         try {
             Authentication authentication = manager.authenticate(new UsernamePasswordAuthenticationToken(
-                    user.getEmail(), user.getPassword()
+                    email, password
             ));
 
-            return new ResponseEntity<>(jwtServices.generateToken(user.getEmail()), HttpStatus.ACCEPTED);
+            String token = jwtServices.generateToken(email);
+
+            UserEntity user = userByToken.userDetails(token);
+
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("token", token);
+            responseBody.put("success", true);
+            responseBody.put("message", "Logged in successfully");
+            responseBody.put("user", Map.of(
+                    "email", email,
+                    "role", user.getRole(),
+                    "id", user.getId(),
+                    "userName", user.getUsername()
+            ));
+
+            return new ResponseEntity<>(responseBody, HttpStatus.OK);
 
         }catch (AuthenticationException e){
             System.out.println("Invalid credentials");
-            return new ResponseEntity<>("Invalid Username or password",HttpStatus.UNAUTHORIZED);
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("success", false);
+            responseBody.put("message", "Incorrect username or password");
+            return new ResponseEntity<>(responseBody,HttpStatus.OK);
         }
     }
 

@@ -26,7 +26,7 @@ public class GetUserByToken {
         String token = null;
         String email = null;
 
-        token = authHeader.substring(7);
+        token = authHeader;
         email = jwtServices.extractEmail(token);
 
         return userRepo.findByEmail(email);

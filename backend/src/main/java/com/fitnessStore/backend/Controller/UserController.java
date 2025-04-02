@@ -31,16 +31,16 @@ public class UserController {
 
 
     @PostMapping("/user/signUp")
-    public ResponseEntity<?> SignUp(@RequestBody UserEntity user){
-        user.setPassword(encoder.encode(user.getPassword()));
-        user.setCreatedAt(LocalDateTime.now());
-        user.setRole("USER");
-        return userServices.SignUp(user);
+    public ResponseEntity<?> SignUp(@RequestBody Map<String,String> credentials){
+        return userServices.SignUp(credentials.get("userName"),credentials.get("email"),credentials.get("password"));
     }
 
-    @GetMapping("/user/login")
-    public ResponseEntity<?> login(@RequestBody UserEntity user,HttpServletResponse response) throws IOException {
-        return userServices.login(user);
+    @PostMapping("/user/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials,
+                                   HttpServletResponse response) throws IOException {
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return userServices.login(credentials.get("email"),credentials.get("password"));
+
     }
 
     @GetMapping("/admin/getUsers")
