@@ -13,4 +13,6 @@ public interface ProductRepo extends MongoRepository<ProductEntity,ObjectId> {
 
     List<ProductEntity> findByCategory(String category);
 
+    void deleteById(ObjectId id);
+
 }

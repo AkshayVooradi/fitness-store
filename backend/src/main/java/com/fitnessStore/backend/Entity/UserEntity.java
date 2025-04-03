@@ -34,7 +34,7 @@ public class UserEntity {
     @Indexed(unique = true)
     private String email;
 
-    @Indexed(unique = true)
+
     private String mobile;
 
     private String role;
