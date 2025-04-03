@@ -18,10 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AdminServices {
@@ -43,32 +40,34 @@ public class AdminServices {
     private CloudinaryService cloudinaryService;
 
 
-    public ResponseEntity<?> addProduct(List<MultipartFile> files,String title,String category,String brand,Double price,Integer discountPercent,String description,Integer stock, String authHeader) {
+    public ResponseEntity<?> addProduct(Map<String,String> productDetails,String authHeader) {
         UserEntity user = userByToken.userDetails(authHeader);
 
-        if(!user.getRole().equals("ADMIN")){
+        if(!user.getRole().equals("admin")){
             return new ResponseEntity<>("Unauthorized user",HttpStatus.UNAUTHORIZED);
         }
 
-        if(files.isEmpty() || title.isEmpty() || category.isEmpty() || brand.isEmpty() || price == 0 || discountPercent == 0 || description.isEmpty() || stock==0){
-            throw new InputArgumentException("Product is empty");
-        }
+//        if(files.isEmpty() || title.isEmpty() || category.isEmpty() || brand.isEmpty() || price == 0 || discountPercent == 0 || description.isEmpty() || stock==0){
+//            throw new InputArgumentException("Product is empty");
+//        }
+//
+//        ProductEntity product = ProductEntity.builder()
+//                .title(title)
+//                .category(category)
+//                .brand(brand)
+//                .price(price)
+//                .discountPercent(discountPercent)
+//                .description(description)
+//                .stock(stock)
+//                .imageUrl(new ArrayList<>())
+//                .build();
+//
+//        for(MultipartFile file: files){
+//            Map uploadResult = cloudinaryService.upload(file);
+//            product.getImageUrl().add((String) uploadResult.get("secure_url"));
+//        }
 
-        ProductEntity product = ProductEntity.builder()
-                .title(title)
-                .category(category)
-                .brand(brand)
-                .price(price)
-                .discountPercent(discountPercent)
-                .description(description)
-                .stock(stock)
-                .imageUrl(new ArrayList<>())
-                .build();
-
-        for(MultipartFile file: files){
-            Map uploadResult = cloudinaryService.upload(file);
-            product.getImageUrl().add((String) uploadResult.get("secure_url"));
-        }
+        ProductEntity product = ProductEntity.builder().build();
 
         return new ResponseEntity<>(productRepo.save(product),HttpStatus.CREATED);
     }
@@ -199,5 +198,28 @@ public class AdminServices {
         }
 
         return new ResponseEntity<>("Set the product status to "+status,HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> uploadImage(MultipartFile myFile, String token) {
+        UserEntity user = userByToken.userDetails(token);
+
+        System.out.println(user);
+
+        Map<String,Object> responseBody = new HashMap<>();
+
+        if(!user.getRole().equals("admin")){
+            responseBody.put("success",false);
+            responseBody.put("message","You are not allowed to access this page");
+            return new ResponseEntity<>(responseBody,HttpStatus.UNAUTHORIZED);
+        }
+
+        Map uploadResult = cloudinaryService.upload(myFile);
+
+        responseBody.put("success",true);
+        responseBody.putAll(uploadResult);
+
+        System.out.println(responseBody);
+
+        return new ResponseEntity<>(responseBody,HttpStatus.OK);
     }
 }

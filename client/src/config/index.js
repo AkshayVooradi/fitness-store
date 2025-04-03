@@ -58,11 +58,11 @@ export const addProductFormElements = [
     name: "category",
     componentType: "select",
     options: [
-      { id: "men", label: "Men" },
-      { id: "women", label: "Women" },
-      { id: "kids", label: "Kids" },
-      { id: "accessories", label: "Accessories" },
-      { id: "footwear", label: "Footwear" },
+      { id: "shirts", label: "Shirts" },
+      { id: "pants", label: "Pants" },
+      { id: "gym equipment", label: "Gym Equipment" },
+      { id: "supplements", label: "Supplements" },
+      { id: "shoes", label: "Shoes" },
     ],
   },
   {
@@ -113,28 +113,28 @@ export const shoppingViewHeaderMenuItems = [
     path: "/shop/listing",
   },
   {
-    id: "men",
-    label: "Men",
+    id: "shirt",
+    label: "Shirts",
     path: "/shop/listing",
   },
   {
-    id: "women",
-    label: "Women",
+    id: "pants",
+    label: "Pants",
     path: "/shop/listing",
   },
   {
-    id: "kids",
-    label: "Kids",
+    id: "gym equipment",
+    label: "Gym Equipment",
     path: "/shop/listing",
   },
   {
-    id: "footwear",
-    label: "Footwear",
+    id: "shoe",
+    label: "Shoes",
     path: "/shop/listing",
   },
   {
-    id: "accessories",
-    label: "Accessories",
+    id: "supplements",
+    label: "Supplements",
     path: "/shop/listing",
   },
   {
@@ -163,11 +163,11 @@ export const brandOptionsMap = {
 
 export const filterOptions = {
   category: [
-    { id: "men", label: "Men" },
-    { id: "women", label: "Women" },
-    { id: "kids", label: "Kids" },
-    { id: "accessories", label: "Accessories" },
-    { id: "footwear", label: "Footwear" },
+    { id: "shirt", label: "Shirts" },
+    { id: "pant", label: "Pants" },
+    { id: "gym equipment", label: "Gym Equipment" },
+    { id: "supplements", label: "Supplements" },
+    { id: "shoe", label: "Shoes" },
   ],
   brand: [
     { id: "nike", label: "Nike" },

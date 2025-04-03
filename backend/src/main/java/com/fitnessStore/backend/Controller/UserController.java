@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,10 +39,16 @@ public class UserController {
     @PostMapping("/user/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials,
                                    HttpServletResponse response) throws IOException {
-        response.setHeader("Access-Control-Allow-Credentials", "true");
-        return userServices.login(credentials.get("email"),credentials.get("password"));
+        return userServices.login(credentials.get("email"),credentials.get("password"),response);
 
     }
+
+    @PostMapping("/user/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response){
+        System.out.println(true);
+        return userServices.logout(response);
+    }
+
 
     @GetMapping("/admin/getUsers")
     public ResponseEntity<?> getAllUsers(HttpServletRequest request){
@@ -63,15 +70,18 @@ public class UserController {
         return userServices.getReviews(request.getHeader("Authorization"));
     }
 
-    private void handleException(HttpServletResponse response, String message) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
+    @GetMapping("/auth/check-auth")
+    public ResponseEntity<?> checkAuth(HttpServletRequest request,@CookieValue(value = "token", defaultValue = "") String token){
 
-        Map<String,String> errorResponse = new HashMap<>();
-        errorResponse.put("status","401");
-        errorResponse.put("error","unauthorized");
-        errorResponse.put("message",message);
+        if(token.isEmpty()){
 
-        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+            Map<String,Object> responseBody=new HashMap<>();
+            responseBody.put("success",false);
+            responseBody.put("message","Unauthorized user");
+
+            return new ResponseEntity<>(responseBody,HttpStatus.UNAUTHORIZED);
+        }
+
+        return userServices.checkAuth(token);
     }
 }
