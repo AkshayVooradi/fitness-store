@@ -10,7 +10,7 @@ export const addNewProduct = createAsyncThunk(
   "/products/addnewproduct",
   async (formData) => {
     const result = await axios.post(
-      "http://localhost:5000/api/admin/products/add",
+      "http://localhost:8080/api/admin/product/add",
       formData,
       {
         headers: {

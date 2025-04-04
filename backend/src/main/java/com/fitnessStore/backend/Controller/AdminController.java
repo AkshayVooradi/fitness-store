@@ -6,10 +6,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/product")
@@ -18,18 +20,17 @@ public class AdminController {
     @Autowired
     private AdminServices adminServices;
 
+    @PostMapping("/upload-image")
+    public ResponseEntity<?> uploadImage(@RequestParam("my_file") MultipartFile file,@CookieValue(value = "token",defaultValue = "")String token){
+        System.out.println(token+" "+true);
+        return adminServices.uploadImage(file,token);
+    }
+
 
     @PostMapping("/add")
-    public ResponseEntity<?> AddProducts(@RequestParam("images") List<MultipartFile> files,
-                                         @RequestParam("title")String title,
-                                         @RequestParam("category")String category,
-                                         @RequestParam("brand")String brand,
-                                         @RequestParam("price")Double price,
-                                         @RequestParam("discountPercent")Integer discountPercent,
-                                         @RequestParam("description")String description,
-                                         @RequestParam("stock")Integer stock,
-                                         HttpServletRequest request){
-        return adminServices.addProduct(files,title,category,brand,price,discountPercent,description,stock,request.getHeader("Authorization"));
+    public ResponseEntity<?> AddProducts(@RequestBody Map<String, String> productDetails,
+                                         @CookieValue(value = "token", defaultValue = "")String token){
+        return adminServices.addProduct(productDetails,token);
     }
 
     @DeleteMapping("/delete")

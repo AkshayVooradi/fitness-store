@@ -3,11 +3,12 @@ package com.fitnessStore.backend.Services;
 import com.fitnessStore.backend.Entity.OrderEntity;
 import com.fitnessStore.backend.Entity.ReviewEntity;
 import com.fitnessStore.backend.Entity.UserEntity;
-import com.fitnessStore.backend.ExceptionHandling.IncorrectToken;
 import com.fitnessStore.backend.Repository.UserRepo;
 import com.fitnessStore.backend.StorageClasses.AddressClass;
 import com.fitnessStore.backend.apiServices.GetUserByToken;
 import com.fitnessStore.backend.apiServices.JWTServices;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class UserServices {
@@ -48,10 +46,11 @@ public class UserServices {
                 .email(email)
                 .password(new BCryptPasswordEncoder().encode(password))
                 .createdAt(LocalDateTime.now())
-                .role("USER")
+                .role("user")
                 .build();
         Map<String,Object> responseBody = new HashMap<>();
-        if(userRepo.findByEmail(email) != null){
+
+        if(userRepo.findByEmail(email).isPresent()){
             responseBody.put("success",false);
             responseBody.put("message","User already exists with this mail");
             return new ResponseEntity<>(responseBody,HttpStatus.OK);
@@ -64,7 +63,7 @@ public class UserServices {
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
-    public ResponseEntity<?> login(String email,String password) {
+    public ResponseEntity<?> login(String email, String password, HttpServletResponse response) {
         try {
             Authentication authentication = manager.authenticate(new UsernamePasswordAuthenticationToken(
                     email, password
@@ -74,8 +73,15 @@ public class UserServices {
 
             UserEntity user = userByToken.userDetails(token);
 
+            Cookie cookie = new Cookie("token", token);
+            cookie.setHttpOnly(true);
+            cookie.setSecure(false);
+            cookie.setPath("/");
+            cookie.setMaxAge(60 * 60);
+
+            response.addCookie(cookie);
+
             Map<String, Object> responseBody = new HashMap<>();
-            responseBody.put("token", token);
             responseBody.put("success", true);
             responseBody.put("message", "Logged in successfully");
             responseBody.put("user", Map.of(
@@ -140,5 +146,46 @@ public class UserServices {
         }
 
         return new ResponseEntity<>(user.getReviews(),HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> checkAuth(String token) {
+        Map<String,Object> responseBody = new HashMap<>();
+
+        UserEntity user = userByToken.userDetails(token);
+
+        if(user == null){
+            responseBody.put("success",false);
+            responseBody.put("message","Unauthorized user");
+            return new ResponseEntity<>(responseBody,HttpStatus.UNAUTHORIZED);
+        }
+
+        responseBody.put("success",true);
+        responseBody.put("message","Authenticated user");
+        responseBody.put("user", Map.of(
+                "email", user.getEmail(),
+                "role", user.getRole(),
+                "id", user.getId(),
+                "userName", user.getUsername()
+        ));
+
+        return new ResponseEntity<>(responseBody,HttpStatus.OK);
+
+    }
+
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+
+        Cookie cookie = new Cookie("token", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+
+        response.addCookie(cookie);
+
+        Map<String,Object> responseBody = new HashMap<>();
+        responseBody.put("success",true);
+        responseBody.put("message","Logged out successfully!");
+
+        return new ResponseEntity<>(responseBody,HttpStatus.OK);
     }
 }

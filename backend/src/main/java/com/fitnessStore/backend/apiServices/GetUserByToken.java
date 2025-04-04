@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 
 @Service
 public class GetUserByToken {
@@ -29,6 +31,9 @@ public class GetUserByToken {
         token = authHeader;
         email = jwtServices.extractEmail(token);
 
-        return userRepo.findByEmail(email);
+        Optional<UserEntity> user = userRepo.findByEmail(email);
+
+        return user.orElse(null);
+
     }
 }

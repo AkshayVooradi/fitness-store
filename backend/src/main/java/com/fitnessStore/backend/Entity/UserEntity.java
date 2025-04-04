@@ -34,7 +34,10 @@ public class UserEntity {
     @Indexed(unique = true)
     private String email;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 411ac88ddd59598be5eefc59fe127f4f37d1f804
     private String mobile;
 
     private String role;
