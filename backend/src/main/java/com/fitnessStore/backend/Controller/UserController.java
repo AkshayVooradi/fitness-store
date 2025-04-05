@@ -45,7 +45,6 @@ public class UserController {
 
     @PostMapping("/user/logout")
     public ResponseEntity<?> logout(HttpServletResponse response){
-        System.out.println(true);
         return userServices.logout(response);
     }
 
@@ -53,11 +52,6 @@ public class UserController {
     @GetMapping("/admin/getUsers")
     public ResponseEntity<?> getAllUsers(HttpServletRequest request){
         return userServices.getAllUsers(request.getHeader("Authorization"));
-    }
-
-    @GetMapping("/user/orders")
-    public ResponseEntity<?> getOrders(HttpServletRequest request){
-        return userServices.getOrders(request.getHeader("Authorization"));
     }
 
     @GetMapping("/user/address")

@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/product")
 public class PublicEPController {
@@ -12,23 +14,20 @@ public class PublicEPController {
     @Autowired
     private PublicEPServices publicEPServices;
 
-    @GetMapping("/{category}")
-    public ResponseEntity<?> getProducts(@PathVariable String category){
-        return publicEPServices.getProducts(category);
+    @GetMapping("/get")
+    public ResponseEntity<?> getProducts(@RequestParam(required = false) List<String> category,
+                                         @RequestParam(required = false) List<String> brand,
+                                        String sortBy){
+        return publicEPServices.getProducts(category,brand,sortBy);
     }
 
-    @GetMapping
-    public ResponseEntity<?> getProductByTitle(@RequestParam String title){
-        return publicEPServices.getProductByTitle(title);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProductByTitle(@PathVariable String id){
+        return publicEPServices.getProductByID(id);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<?> searchProduct(@RequestParam String keyword){
+    @GetMapping("/search/{keyword}")
+    public ResponseEntity<?> searchProduct(@PathVariable String keyword){
         return publicEPServices.search(keyword);
-    }
-
-    @GetMapping("/filter")
-    public ResponseEntity<?> filterProduct(@RequestParam String category,@RequestParam Double minPrice,@RequestParam Double maxPrice,@RequestParam Integer minDiscount,@RequestParam Double minRating){
-        return publicEPServices.filter(category,minPrice,maxPrice,minDiscount,minRating);
     }
 }

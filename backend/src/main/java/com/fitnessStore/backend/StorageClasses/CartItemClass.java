@@ -20,13 +20,18 @@ public class CartItemClass {
     @DBRef
     private ProductEntity product;
 
+    private String productId;
+
     private int quantity;
 
     private String size;
 
-    private double cost;
+    private String title;
 
-    private String status;
+    private String image;
 
-    private LocalDateTime deliveredAt;
+    private double price;
+
+    private double salePrice;
+
 }

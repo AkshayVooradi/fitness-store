@@ -2,9 +2,15 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import UserCartItemsContent from "./cart-items-content";
+import { useDispatch } from "react-redux";
+import { createOrder } from "@/store/shop/order-slice";
+import { data } from "autoprefixer";
+import { toast } from "../ui/use-toast";
+import { fetchCartItems } from "@/store/shop/cart-slice";
 
 function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const totalCartAmount =
     cartItems && cartItems.length > 0
@@ -18,6 +24,28 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
           0
         )
       : 0;
+
+  const handleCheckout = () => {
+    console.log(true, "akshay");
+
+    const formData = {
+      totalCartAmount,
+    };
+
+    dispatch(createOrder(formData)).then((data) => {
+      if (data?.payload?.success) {
+        toast({
+          title: data.payload.message,
+        });
+        dispatch(fetchCartItems(user?.id));
+      } else {
+        toast({
+          title: data.payload.message,
+          vatiant: "destructive",
+        });
+      }
+    });
+  };
 
   return (
     <SheetContent className="sm:max-w-md">
@@ -35,13 +63,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
           <span className="font-bold">${totalCartAmount}</span>
         </div>
       </div>
-      <Button
-        onClick={() => {
-          navigate("/shop/checkout");
-          setOpenCartSheet(false);
-        }}
-        className="w-full mt-6"
-      >
+      <Button onClick={handleCheckout} className="w-full mt-6">
         Checkout
       </Button>
     </SheetContent>

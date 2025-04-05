@@ -2,6 +2,7 @@ package com.fitnessStore.backend.Repository;
 
 import com.fitnessStore.backend.Entity.ProductEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -30,22 +31,25 @@ public class ProductRepoCustom {
         return mongoTemplate.find(query,ProductEntity.class);
     }
 
-    public List<ProductEntity> filterProducts(String category, Double minPrice, Double maxPrice,Integer minDiscount, Double minRating){
+    public List<ProductEntity> filterProducts(List<String> category,List<String> brand, String sortBy){
         Query query = new Query();
 
-        Criteria criteria= Criteria.where("category").is(category);
-
-        if(minPrice!=null && maxPrice != null){
-            criteria=criteria.and("price").gte(minPrice).lte(maxPrice);
-        }
-        if(minDiscount != null){
-            criteria=criteria.and("discountPercent").gte(minDiscount);
-        }
-        if(minRating != null){
-            criteria=criteria.and("AverageRating").gte(minRating);
+        if(category!=null && !category.isEmpty()){
+            query.addCriteria(Criteria.where("category").in(category));
         }
 
-        query.addCriteria(criteria);
+        if(brand!=null && !brand.isEmpty()){
+            query.addCriteria(Criteria.where("brand").in(brand));
+        }
+
+        Sort sort = switch (sortBy){
+            case "price-hightolow" -> Sort.by(Sort.Direction.DESC,"price");
+            case "title-atoz" -> Sort.by(Sort.Direction.ASC,"title");
+            case "title-ztoa" -> Sort.by(Sort.Direction.DESC,"title");
+            default -> Sort.by(Sort.Direction.ASC,"price");
+        };
+
+        query.with(sort);
 
         return mongoTemplate.find(query,ProductEntity.class);
     }

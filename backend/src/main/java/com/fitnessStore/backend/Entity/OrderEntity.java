@@ -23,18 +23,22 @@ import java.util.List;
 @Document(collection = "order_entity")
 public class OrderEntity {
     @Id
-    private ObjectId id;
+    private String id;
 
     @DBRef
     @Field("user_id")
     @JsonIgnore
     private UserEntity user;
 
-    private List<CartItemClass> products;
+    private String userId;
 
-    private LocalDateTime createdAt;
+    private List<CartItemClass> cartItems;
 
-    private AddressClass address;
+    private String orderStatus;
 
-    private double totalCost;
+    private LocalDateTime orderDate;
+
+    private LocalDateTime orderUpdateDate;
+
+    private double totalAmount;
 }

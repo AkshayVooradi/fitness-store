@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
@@ -16,22 +18,22 @@ public class CartController {
     private CartServices cartServices;
 
     @PostMapping("/add")
-    public ResponseEntity<?> AddProduct(@RequestParam String title,@RequestParam int quantity, HttpServletRequest request){
-        return cartServices.addProduct(title,quantity,request.getHeader("Authorization"));
+    public ResponseEntity<?> AddProduct(@CookieValue(value = "token",defaultValue = "")String token,@RequestBody Map<String ,String> credentials){
+        return cartServices.addProduct(credentials.get("productId"),credentials.get("quantity"),token);
     }
 
-    @GetMapping
-    public ResponseEntity<?> getProducts(HttpServletRequest request){
-        return cartServices.getProducts(request.getHeader("Authorization"));
+    @GetMapping("/get")
+    public ResponseEntity<?> getProducts(@CookieValue(value = "token",defaultValue = "")String token){
+        return cartServices.getProducts(token);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteProduct(@RequestParam String title,HttpServletRequest request){
-        return cartServices.deleteProduct(title, request.getHeader("Authorization"));
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteProduct(@CookieValue(value = "token",defaultValue = "")String token,@PathVariable String id){
+        return cartServices.deleteProduct(id,token);
     }
 
     @PutMapping("/update")
-    private ResponseEntity<?> updateProduct(@RequestParam String title,@RequestParam int quantity, HttpServletRequest request){
-        return cartServices.updateProduct(title,quantity,request.getHeader("Authorization"));
+    private ResponseEntity<?> updateProduct(@CookieValue(value = "token", defaultValue = "")String token,@RequestBody Map<String ,String> credentials){
+        return cartServices.updateProduct(credentials.get("productId"),credentials.get("quantity"),token);
     }
 }

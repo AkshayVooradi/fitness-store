@@ -30,13 +30,14 @@ import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/components/ui/use-toast";
 import ProductDetailsDialog from "@/components/shopping-view/product-details";
 import { getFeatureImages } from "@/store/common-slice";
+import ShoppingCheckout from "./checkout";
 
 const categoriesWithIcon = [
-  { id: "men", label: "Men", icon: ShirtIcon },
-  { id: "women", label: "Women", icon: CloudLightning },
-  { id: "kids", label: "Kids", icon: BabyIcon },
-  { id: "accessories", label: "Accessories", icon: WatchIcon },
-  { id: "footwear", label: "Footwear", icon: UmbrellaIcon },
+  { id: "shirts", label: "Shirts", icon: ShirtIcon },
+  { id: "pants", label: "Pants", icon: CloudLightning },
+  { id: "gym equipment", label: "Gym Equipment", icon: BabyIcon },
+  { id: "supplements", label: "Supplements", icon: WatchIcon },
+  { id: "shoes", label: "Shoes", icon: UmbrellaIcon },
 ];
 
 const brandsWithIcon = [

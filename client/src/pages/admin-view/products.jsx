@@ -47,6 +47,8 @@ function AdminProducts() {
   function onSubmit(event) {
     event.preventDefault();
 
+    console.log(currentEditedId);
+
     currentEditedId !== null
       ? dispatch(
           editProduct({
@@ -70,6 +72,7 @@ function AdminProducts() {
           })
         ).then((data) => {
           if (data?.payload?.success) {
+            console.log(data);
             dispatch(fetchAllProducts());
             setOpenCreateProductsDialog(false);
             setImageFile(null);

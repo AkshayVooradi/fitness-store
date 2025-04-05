@@ -11,6 +11,7 @@ import com.fitnessStore.backend.Repository.UserRepo;
 import com.fitnessStore.backend.StorageClasses.AddressClass;
 import com.fitnessStore.backend.StorageClasses.CartItemClass;
 import com.fitnessStore.backend.apiServices.GetUserByToken;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,9 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
+@Slf4j
 @Service
 public class OrderServices {
 
@@ -40,22 +41,29 @@ public class OrderServices {
     @Autowired
     private CartRepo cartRepo;
 
-    public ResponseEntity<?> createOrder(AddressClass addressData, String authorization) {
+    public ResponseEntity<?> createOrder(String totalCartAmount,String authorization) {
 
         UserEntity user = getUserByToken.userDetails(authorization);
 
         CartEntity cart = user.getCart();
 
+        Map<String,Object> responseBody = new HashMap<>();
+
         if(cart == null || cart.getProducts().isEmpty()){
-            return new ResponseEntity<>("Cart is Empty", HttpStatus.NOT_FOUND);
+
+            responseBody.put("success",false);
+            responseBody.put("message","Cart is Empty");
+
+            return new ResponseEntity<>(responseBody, HttpStatus.NOT_FOUND);
         }
 
         OrderEntity orderEntity = OrderEntity.builder()
-                .createdAt(LocalDateTime.now())
-                .address(addressData)
-                .products(new ArrayList<>())
                 .user(user)
-                .totalCost(0)
+                .userId(user.getId())
+                .orderStatus("confirmed")
+                .orderDate(LocalDateTime.now())
+                .cartItems(new ArrayList<>())
+                .totalAmount(Double.parseDouble(totalCartAmount))
                 .build();
 
         List<OrderEntity> orders = user.getOrders();
@@ -64,40 +72,88 @@ public class OrderServices {
             orders = new ArrayList<>();
         }
 
-        cart.getProducts().forEach(item -> orderEntity.getProducts().add(item));
-
-        double totalCost=0;
+        cart.getProducts().forEach(item -> orderEntity.getCartItems().add(item));
 
         List<CartItemClass> items = cart.getProducts();
 
         for(CartItemClass item : items){
-            if(item.getQuantity()>item.getProduct().getStock()){
-                return new ResponseEntity<>("Currently the stock for product "+item.getProduct().getTitle()+" is "+item.getProduct().getStock()+". Your quantity "+item.getQuantity()+" is much more",HttpStatus.BAD_REQUEST);
+            if(item.getQuantity()>item.getProduct().getTotalStock()){
+
+                responseBody.put("success",false);
+                responseBody.put("message","Invalid quantity selected");
+
+                return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
             }
-            totalCost+=item.getCost();
         }
 
         //to make sure stocks are getting updated correctly
         for(CartItemClass item : items){
             ProductEntity product = item.getProduct();
-            product.setStock(product.getStock()- item.getQuantity());
+            product.setTotalStock(product.getTotalStock()- item.getQuantity());
             productRepo.save(product);
         }
 
-        orderEntity.setTotalCost(totalCost);
-
-        orderEntity.getProducts().forEach(item-> item.setStatus("Under Packaging"));
-
         user.getOrders().add(orderEntity);
-        user.getAddress().add(addressData);
         cart.setProducts(new ArrayList<>());
 
         orderRepo.save(orderEntity);
         userRepo.save(user);
         cartRepo.save(cart);
 
+        responseBody.put("success",true);
+        responseBody.put("message","order created successfully");
+        responseBody.put("orderId",orderEntity.getId());
 
-        return new ResponseEntity<>(orderEntity,HttpStatus.CREATED);
+        return new ResponseEntity<>(responseBody,HttpStatus.CREATED);
+    }
+
+    public ResponseEntity<?> getOrders(String authorization) {
+        UserEntity user = getUserByToken.userDetails(authorization);
+
+        List<OrderEntity> orders = user.getOrders();
+
+        Map<String,Object> responseBody = new HashMap<>();
+
+        if(orders.isEmpty()){
+
+            responseBody.put("success",false);
+            responseBody.put("message","no orders found");
+
+            return new ResponseEntity<>(responseBody,HttpStatus.NOT_FOUND);
+        }
+
+        responseBody.put("success",true);
+        responseBody.put("data",orders);
+
+        return new ResponseEntity<>(responseBody,HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getOrderById(String id){
+
+        Map<String ,Object> responseBody = new HashMap<>();
+
+        if(id.isEmpty()){
+
+            responseBody.put("success",false);
+            responseBody.put("message","id is empty");
+
+            return new ResponseEntity<>(responseBody,HttpStatus.BAD_REQUEST);
+        }
+
+        Optional<OrderEntity> order = orderRepo.findById(id);
+
+        if(order.isEmpty()){
+
+            responseBody.put("success",false);
+            responseBody.put("message","order not found");
+
+            return new ResponseEntity<>(responseBody,HttpStatus.NOT_FOUND);
+        }
+
+        responseBody.put("success",true);
+        responseBody.put("data",order);
+
+        return new ResponseEntity<>(responseBody,HttpStatus.OK);
     }
 
     public ResponseEntity<?> cancelOrder(String id, String title, String authorization) {
@@ -123,18 +179,18 @@ public class OrderServices {
             if(updated){
                 break;
             }
-            if(order.getId().equals(objectId)){
-                List<CartItemClass> products = order.getProducts();
-                for(CartItemClass item : products){
-                    if(item.getProduct().equals(product) &&
-                            (item.getStatus().equals("Under Packaging") || item.getStatus().equals("Out For Delivery"))){
-                        item.setStatus("Cancelled");
-                        orderRepo.save(order);
-                        updated= true;
-                        break;
-                    }
-                }
-            }
+//            if(order.getId().equals(objectId)){
+//                List<CartItemClass> products = order.getProducts();
+//                for(CartItemClass item : products){
+//                    if(item.getProduct().equals(product) &&
+//                            (item.getStatus().equals("Under Packaging") || item.getStatus().equals("Out For Delivery"))){
+//                        item.setStatus("Cancelled");
+//                        orderRepo.save(order);
+//                        updated= true;
+//                        break;
+//                    }
+//                }
+//            }
         }
 
         if(!updated){

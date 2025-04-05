@@ -77,6 +77,7 @@ public class UserServices {
             cookie.setHttpOnly(true);
             cookie.setSecure(false);
             cookie.setPath("/");
+            cookie.setAttribute("SameSite","Lax");
             cookie.setMaxAge(60 * 60);
 
             response.addCookie(cookie);
@@ -112,17 +113,6 @@ public class UserServices {
         return new ResponseEntity<>(userRepo.findAll(),HttpStatus.OK);
     }
 
-    public ResponseEntity<?> getOrders(String authorization) {
-        UserEntity user = userByToken.userDetails(authorization);
-
-        List<OrderEntity> orders = user.getOrders();
-
-        if(orders.isEmpty()){
-            return new ResponseEntity<>("No previous Orders",HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<>(orders,HttpStatus.OK);
-    }
 
     public ResponseEntity<?> getAddress(String authorization) {
         UserEntity user = userByToken.userDetails(authorization);
@@ -158,6 +148,7 @@ public class UserServices {
             responseBody.put("message","Unauthorized user");
             return new ResponseEntity<>(responseBody,HttpStatus.UNAUTHORIZED);
         }
+
 
         responseBody.put("success",true);
         responseBody.put("message","Authenticated user");

@@ -40,7 +40,8 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
-        if ("/api/user/signUp".equals(path) || "/api/user/login".equals(path) || "/api/user/logout".equals(path) || "api/auth/check-auth".equals(path) || "api/admin/product/upload-image".equals(path)) {
+
+        if ("/api/user/signUp".equals(path) || "/api/user/login".equals(path) || "/api/user/logout".equals(path) /*|| "api/auth/check-auth".equals(path) || "api/admin/product/upload-image".equals(path)*/) {
             filterChain.doFilter(request, response);
             return;
         }

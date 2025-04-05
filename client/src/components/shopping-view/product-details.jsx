@@ -74,26 +74,30 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   function handleAddReview() {
     dispatch(
       addReview({
-        productId: productDetails?._id,
-        userId: user?.id,
-        userName: user?.userName,
+        productId: productDetails?.id,
         reviewMessage: reviewMsg,
         reviewValue: rating,
       })
     ).then((data) => {
-      if (data.payload.success) {
+      if (data?.payload?.success) {
         setRating(0);
         setReviewMsg("");
-        dispatch(getReviews(productDetails?._id));
+        dispatch(getReviews(productDetails?.id));
+        console.log(reviews, "akshay", true);
         toast({
-          title: "Review added successfully!",
+          title: data?.payload?.message,
+        });
+      } else {
+        toast({
+          title: data.payload.message,
+          variant: "destructive",
         });
       }
     });
   }
 
   useEffect(() => {
-    if (productDetails !== null) dispatch(getReviews(productDetails?._id));
+    if (productDetails !== null) dispatch(getReviews(productDetails?.id));
   }, [productDetails]);
 
   console.log(reviews, "reviews");
@@ -155,7 +159,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
                 className="w-full"
                 onClick={() =>
                   handleAddToCart(
-                    productDetails?._id,
+                    productDetails?.id,
                     productDetails?.totalStock
                   )
                 }

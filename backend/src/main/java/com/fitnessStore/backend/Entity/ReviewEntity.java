@@ -33,9 +33,14 @@ public class ReviewEntity {
     @JsonIgnore
     private ProductEntity product;
 
-    private String description;
+    private String userId;
 
-    private double rating;
+    private String userName;
 
-    private LocalDateTime createdAt;
+    private String productId;
+
+    private String reviewMessage;
+
+    private double reviewValue;
+
 }

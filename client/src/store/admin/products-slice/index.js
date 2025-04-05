@@ -9,10 +9,13 @@ const initialState = {
 export const addNewProduct = createAsyncThunk(
   "/products/addnewproduct",
   async (formData) => {
+    console.log(true)
+    console.log(formData)
     const result = await axios.post(
       "http://localhost:8080/api/admin/product/add",
       formData,
       {
+        withCredentials: true,
         headers: {
           "Content-Type": "application/json",
         },
@@ -27,7 +30,9 @@ export const fetchAllProducts = createAsyncThunk(
   "/products/fetchAllProducts",
   async () => {
     const result = await axios.get(
-      "http://localhost:5000/api/admin/products/get"
+      "http://localhost:8080/api/admin/product/getAllProducts",{
+        withCredentials: true
+      }
     );
 
     return result?.data;
@@ -37,10 +42,13 @@ export const fetchAllProducts = createAsyncThunk(
 export const editProduct = createAsyncThunk(
   "/products/editProduct",
   async ({ id, formData }) => {
-    const result = await axios.put(
-      `http://localhost:5000/api/admin/products/edit/${id}`,
+    console.log(id)
+    console.log(formData)
+    const result = await axios.post(
+      `http://localhost:8080/api/admin/product/updateProduct/${id}`,
       formData,
       {
+        withCredentials: true,
         headers: {
           "Content-Type": "application/json",
         },
@@ -55,7 +63,10 @@ export const deleteProduct = createAsyncThunk(
   "/products/deleteProduct",
   async (id) => {
     const result = await axios.delete(
-      `http://localhost:5000/api/admin/products/delete/${id}`
+      `http://localhost:8080/api/admin/product/delete/${id}`,
+      {
+        withCredentials: true,
+      }
     );
 
     return result?.data;

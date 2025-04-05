@@ -1,11 +1,15 @@
 package com.fitnessStore.backend.Services;
 
+import com.fitnessStore.backend.Entity.OrderEntity;
 import com.fitnessStore.backend.Entity.ProductEntity;
 import com.fitnessStore.backend.Entity.ReviewEntity;
 import com.fitnessStore.backend.Entity.UserEntity;
+import com.fitnessStore.backend.ExceptionHandling.InputArgumentException;
+import com.fitnessStore.backend.Repository.OrderRepo;
 import com.fitnessStore.backend.Repository.ProductRepo;
 import com.fitnessStore.backend.Repository.ReviewRepo;
 import com.fitnessStore.backend.Repository.UserRepo;
+import com.fitnessStore.backend.StorageClasses.CartItemClass;
 import com.fitnessStore.backend.apiServices.GetUserByToken;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ReviewServices {
@@ -33,170 +35,122 @@ public class ReviewServices {
     @Autowired
     private UserRepo userRepo;
 
-    public ResponseEntity<?> createReview(String title, ReviewEntity review, String authorization) {
+    @Autowired
+    private OrderRepo orderRepo;
+
+    public ResponseEntity<?> createReview(String productId,String reviewMessage,String reviewValue,String authorization) {
         UserEntity user = getUserByToken.userDetails(authorization);
 
+        Map<String,Object> responseBody = new HashMap<>();
+
         if(user == null){
-            return new ResponseEntity<>("No user found", HttpStatus.NOT_FOUND);
+            responseBody.put("success",false);
+            responseBody.put("message","No user found");
+            return new ResponseEntity<>(responseBody, HttpStatus.NOT_FOUND);
         }
 
-        ProductEntity product = productRepo.findByTitle(title);
+        List<OrderEntity> orders = orderRepo.findByUserId(user.getId());
 
-        if(product == null){
-            return new ResponseEntity<>("Product Not found",HttpStatus.NOT_FOUND);
+        boolean ordered = false;
+
+        for(OrderEntity order: orders){
+            if(order.getOrderStatus().equals("delivered")) {
+                for (CartItemClass item : order.getCartItems()) {
+                    if (item.getProduct().getId().equals(productId)) {
+                        ordered = true;
+                        break;
+                    }
+                }
+            }
         }
 
-        List<ProductEntity> products = user.getProducts();
+        if(!ordered){
 
-        boolean found= false;
+            responseBody.put("success",false);
+            responseBody.put("message","You need to purchase product to review it");
 
-        for(ProductEntity prod: products){
-            if(prod.getTitle().equals(product.getTitle())){
-                found= true;
+            return new ResponseEntity<>(responseBody, HttpStatus.OK);
+        }
+
+        List<ReviewEntity> reviews = reviewRepo.findByProductId(productId);
+
+        ReviewEntity review = null;
+
+        for(ReviewEntity rev : reviews){
+            if(rev.getUserId().equals(user.getId())){
+                review = rev;
                 break;
             }
         }
 
-        if(!found){
-            return new ResponseEntity<>("You haven't purchased the product to write a review",HttpStatus.UNAUTHORIZED);
+        Optional<ProductEntity> product = productRepo.findById(productId);
+
+        if(product.isEmpty()){
+
+            responseBody.put("success",false);
+            responseBody.put("message","product not found");
+
+            return new ResponseEntity<>(responseBody, HttpStatus.FORBIDDEN);
         }
 
-        review.setUser(user);
-        review.setCreatedAt(LocalDateTime.now());
-        review.setProduct(product);
+        if(review == null){
 
+            review = ReviewEntity.builder()
+                    .productId(productId)
+                    .user(user)
+                    .product(product.get())
+                    .userId(user.getId())
+                    .userName(user.getUsername())
+                    .reviewMessage(reviewMessage)
+                    .reviewValue(Integer.parseInt(reviewValue))
+                    .build();
 
-        List<ReviewEntity> userReviews= user.getReviews();
-        if(userReviews == null){
-            userReviews = new ArrayList<>();
+            product.get().setSumOfRatings(product.get().getSumOfRatings()+Integer.parseInt(reviewValue));
+            product.get().setAverageReview((float)product.get().getSumOfRatings()/reviews.size());
+
+            reviewRepo.save(review);
+            productRepo.save(product.get());
+
+        }else{
+
+            product.get().setSumOfRatings(product.get().getSumOfRatings()+Integer.parseInt(reviewValue)-review.getReviewValue());
+            product.get().setAverageReview((float)product.get().getSumOfRatings()/reviews.size());
+
+            review.setReviewMessage(reviewMessage);
+            review.setReviewValue(Integer.parseInt(reviewValue));
+
+            reviewRepo.save(review);
+            productRepo.save(product.get());
+
         }
 
-        userReviews.add(review);
+        responseBody.put("success",true);
+        responseBody.put("data",review);
+        responseBody.put("message","Added review");
 
-
-        List<ReviewEntity> productReviews = product.getReviews();
-
-        if(productReviews == null){
-            productReviews = new ArrayList<>();
-        }
-
-        productReviews.add(review);
-        product.setSumOfRatings(product.getSumOfRatings()+review.getRating());
-        product.setAverageRating((float)product.getSumOfRatings()/productReviews.size());
-        product.setReviews(productReviews);
-
-        reviewRepo.save(review);
-        userRepo.save(user);
-        productRepo.save(product);
-
-        return new ResponseEntity<>(review, HttpStatus.CREATED);
+        return new ResponseEntity<>(responseBody, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> updateReview(ObjectId id,ReviewEntity review, String authorization) {
-        UserEntity user = getUserByToken.userDetails(authorization);
+    public ResponseEntity<?> getReviewById(String id, String token) {
+        UserEntity user = getUserByToken.userDetails(token);
+
+        Map<String,Object> responseBody = new HashMap<>();
 
         if(user == null){
-            return new ResponseEntity<>("No User Found",HttpStatus.NOT_FOUND);
+
+            responseBody.put("success",false);
+            responseBody.put("message","No user found");
+
+            return new ResponseEntity<>(responseBody, HttpStatus.NOT_FOUND);
+
         }
 
-        List<ReviewEntity> reviews = user.getReviews();
+        List<ReviewEntity> reviews = reviewRepo.findByProductId(id);
 
-        if(reviews.isEmpty()){
-            return new ResponseEntity<>("No Reviews Found",HttpStatus.NOT_FOUND);
-        }
+        responseBody.put("success",true);
+        responseBody.put("data",reviews);
 
-        boolean updated= false;
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
 
-        Optional<ReviewEntity> actualReview = reviewRepo.findById(id);
-
-        if(actualReview.isEmpty()){
-            return new ResponseEntity<>("Review Not found with the given id",HttpStatus.NOT_FOUND);
-        }
-
-        for(ReviewEntity reviewEntity : reviews){
-            if(reviewEntity.getId().equals(id)){
-                updated=true;
-                if(review.getRating()!=0) {
-                    ProductEntity product = reviewEntity.getProduct();
-                    product.setSumOfRatings(product.getSumOfRatings()-reviewEntity.getRating()+review.getRating());
-                    product.setAverageRating((float)product.getSumOfRatings()/product.getReviews().size());
-                    reviewEntity.setRating(review.getRating());
-                    reviewRepo.save(reviewEntity);
-                    productRepo.save(product);
-                }
-                if(review.getDescription()!=null) {
-                    reviewEntity.setDescription(review.getDescription());
-                    reviewRepo.save(reviewEntity);
-                }
-                break;
-            }
-        }
-
-        if(!updated){
-            return new ResponseEntity<>("The review doesn't belong to this user",HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<>("Updated Review",HttpStatus.NO_CONTENT);
-    }
-
-    public ResponseEntity<?> deleteReview(ObjectId id, String authorization) {
-        UserEntity user = getUserByToken.userDetails(authorization);
-
-        if(user == null){
-            return new ResponseEntity<>("No User Found",HttpStatus.NOT_FOUND);
-        }
-
-        List<ReviewEntity> reviews = user.getReviews();
-
-        if(reviews.isEmpty()){
-            return new ResponseEntity<>("No Reviews Found",HttpStatus.NOT_FOUND);
-        }
-
-        Optional<ReviewEntity> review = reviewRepo.findById(id);
-
-        if(review.isEmpty()){
-            return new ResponseEntity<>("No Review found with the given ID",HttpStatus.NOT_FOUND);
-        }
-
-        boolean found= false;
-
-        for(ReviewEntity rev: reviews){
-            if(rev.getId().equals(review.get().getId())){
-                found=true;
-                break;
-            }
-        }
-
-        if(!found){
-            return new ResponseEntity<>("You haven't written a review for this product",HttpStatus.UNAUTHORIZED);
-        }
-
-        ProductEntity product = review.get().getProduct();
-
-        for(int i=0;i<product.getReviews().size();i++){
-            if(product.getReviews().get(i).getId().equals(review.get().getId())){
-                product.getReviews().remove(i);
-                break;
-            }
-        }
-
-        product.setSumOfRatings(product.getSumOfRatings()- review.get().getRating());
-        if(product.getReviews().isEmpty()){
-            product.setAverageRating(0);
-        }else {
-            product.setAverageRating((float) product.getSumOfRatings() / product.getReviews().size());
-        }
-
-        productRepo.save(product);
-        reviewRepo.deleteById(id);
-        for(int i=0;i<user.getReviews().size();i++){
-            if(user.getReviews().get(i).getId().equals(review.get().getId())){
-                user.getReviews().remove(i);
-                break;
-            }
-        }
-        userRepo.save(user);
-
-        return new ResponseEntity<>("Deleted Review Successfully",HttpStatus.NO_CONTENT);
     }
 }

@@ -24,7 +24,7 @@ import java.util.Set;
 public class UserEntity {
 
     @Id
-    private ObjectId id;
+    private String id;
 
     @Indexed(unique = true)
     private String username;

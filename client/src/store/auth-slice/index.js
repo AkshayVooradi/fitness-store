@@ -63,10 +63,10 @@ export const checkAuth = createAsyncThunk(
       "http://localhost:8080/api/auth/check-auth",
       {
         withCredentials: true,
-        // headers: {
-        //   "Cache-Control":
-        //     "no-store, no-cache, must-revalidate, proxy-revalidate",
-        // },
+        headers: {
+          "Cache-Control":
+            "no-store, no-cache, must-revalidate, proxy-revalidate",
+        },
       }
     );
 

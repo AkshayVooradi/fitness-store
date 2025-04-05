@@ -37,13 +37,13 @@ function AdminProductTile({
           <Button
             onClick={() => {
               setOpenCreateProductsDialog(true);
-              setCurrentEditedId(product?._id);
+              setCurrentEditedId(product?.id);
               setFormData(product);
             }}
           >
             Edit
           </Button>
-          <Button onClick={() => handleDelete(product?._id)}>Delete</Button>
+          <Button onClick={() => handleDelete(product?.id)}>Delete</Button>
         </CardFooter>
       </div>
     </Card>

@@ -22,7 +22,7 @@ import java.util.List;
 public class ProductEntity {
 
     @Id
-    private ObjectId id;
+    private String id;
 
     @Indexed(unique = true)
     private String title;
@@ -33,21 +33,19 @@ public class ProductEntity {
 
     private double price;
 
-    private int discountPercent;
+    private double salePrice;
 
     private String description;
 
-    private List<String> imageUrl;
+    private String image;
 
-    private int stock;
+    private int totalStock;
 
-    private double AverageRating = 0;
+    private double AverageReview= 0;
 
     private double sumOfRatings = 0;
 
     @DBRef
     @JsonIgnore
     private List<ReviewEntity> reviews;
-
-    private List<String> size= new ArrayList<>();
 }

@@ -2,12 +2,25 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const initialState = {
-  approvalURL: null,
   isLoading: false,
   orderId: null,
   orderList: [],
   orderDetails: null,
 };
+
+export const createOrder = createAsyncThunk(
+  "order/createOrder",
+  async (formData)=>{
+    const res = await axios.post(
+      "http://localhost:8080/api/order/create",
+      formData,{
+        withCredentials: true
+      }
+    )
+
+    return res.data;
+  }
+);
 
 export const createNewOrder = createAsyncThunk(
   "/order/createNewOrder",
@@ -41,7 +54,9 @@ export const getAllOrdersByUserId = createAsyncThunk(
   "/order/getAllOrdersByUserId",
   async (userId) => {
     const response = await axios.get(
-      `http://localhost:5000/api/shop/order/list/${userId}`
+      `http://localhost:8080/api/order/list`,{
+        withCredentials:true
+      }
     );
 
     return response.data;
@@ -52,7 +67,9 @@ export const getOrderDetails = createAsyncThunk(
   "/order/getOrderDetails",
   async (id) => {
     const response = await axios.get(
-      `http://localhost:5000/api/shop/order/details/${id}`
+      `http://localhost:8080/api/order/details/${id}`,{
+        withCredentials: true
+      }
     );
 
     return response.data;
@@ -69,21 +86,19 @@ const shoppingOrderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(createNewOrder.pending, (state) => {
+      .addCase(createOrder.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(createNewOrder.fulfilled, (state, action) => {
+      .addCase(createOrder.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.approvalURL = action.payload.approvalURL;
         state.orderId = action.payload.orderId;
         sessionStorage.setItem(
           "currentOrderId",
           JSON.stringify(action.payload.orderId)
         );
       })
-      .addCase(createNewOrder.rejected, (state) => {
+      .addCase(createOrder.rejected, (state) => {
         state.isLoading = false;
-        state.approvalURL = null;
         state.orderId = null;
       })
       .addCase(getAllOrdersByUserId.pending, (state) => {

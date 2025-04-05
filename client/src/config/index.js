@@ -113,7 +113,7 @@ export const shoppingViewHeaderMenuItems = [
     path: "/shop/listing",
   },
   {
-    id: "shirt",
+    id: "shirts",
     label: "Shirts",
     path: "/shop/listing",
   },
@@ -128,7 +128,7 @@ export const shoppingViewHeaderMenuItems = [
     path: "/shop/listing",
   },
   {
-    id: "shoe",
+    id: "shoes",
     label: "Shoes",
     path: "/shop/listing",
   },
@@ -163,11 +163,11 @@ export const brandOptionsMap = {
 
 export const filterOptions = {
   category: [
-    { id: "shirt", label: "Shirts" },
+    { id: "shirts", label: "Shirts" },
     { id: "pant", label: "Pants" },
     { id: "gym equipment", label: "Gym Equipment" },
     { id: "supplements", label: "Supplements" },
-    { id: "shoe", label: "Shoes" },
+    { id: "shoes", label: "Shoes" },
   ],
   brand: [
     { id: "nike", label: "Nike" },

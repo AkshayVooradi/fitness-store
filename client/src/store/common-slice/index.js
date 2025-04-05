@@ -9,8 +9,12 @@ const initialState = {
 export const getFeatureImages = createAsyncThunk(
   "/order/getFeatureImages",
   async () => {
+    let sample = " sample"
     const response = await axios.get(
-      `http://localhost:5000/api/common/feature/get`
+      `http://localhost:8080/api/feature/get`,
+      {
+        withCredentials: true
+      }
     );
 
     return response.data;
@@ -21,8 +25,10 @@ export const addFeatureImage = createAsyncThunk(
   "/order/addFeatureImage",
   async (image) => {
     const response = await axios.post(
-      `http://localhost:5000/api/common/feature/add`,
-      { image }
+      `http://localhost:8080/api/feature/add`,
+      { image },{
+        withCredentials: true
+      }
     );
 
     return response.data;
