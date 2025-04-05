@@ -15,10 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AdminServices {
@@ -36,16 +36,38 @@ public class AdminServices {
     @Autowired
     private OrderRepo orderRepo;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
-    public ResponseEntity<?> addProduct(ProductEntity product, String authHeader) {
+
+    public ResponseEntity<?> addProduct(List<MultipartFile> files,String title,String category,String brand,Double price,Integer salePrice,String description,Integer stock, String authHeader) {
         UserEntity user = userByToken.userDetails(authHeader);
+        System.out.println("Logged in user role: " + user.getRole());
 
-        if(!user.getRole().equals("ADMIN")){
+
+        if(!user.getRole().equals("admin")){
             return new ResponseEntity<>("Unauthorized user",HttpStatus.UNAUTHORIZED);
         }
 
-        if(product == null){
+
+        if(files.isEmpty() || title.isEmpty() || category.isEmpty() || brand.isEmpty() || price == 0 || salePrice == 0 || description.isEmpty() || stock==0){
             throw new InputArgumentException("Product is empty");
+        }
+
+        ProductEntity product = ProductEntity.builder()
+                .title(title)
+                .category(category)
+                .brand(brand)
+                .price(price)
+                .salePrice(salePrice)
+                .description(description)
+                .stock(stock)
+                .imageUrl(new ArrayList<>())
+                .build();
+
+        for(MultipartFile file: files){
+            Map uploadResult = cloudinaryService.upload(file);
+            product.getImageUrl().add((String) uploadResult.get("secure_url"));
         }
 
         return new ResponseEntity<>(productRepo.save(product),HttpStatus.CREATED);
@@ -54,7 +76,7 @@ public class AdminServices {
     public ResponseEntity<?> deleteProduct(String productTitle, String authHeader) {
         UserEntity user = userByToken.userDetails(authHeader);
 
-        if(!user.getRole().equals("ADMIN")){
+        if(!user.getRole().equals("admin")){
             return new ResponseEntity<>("Unauthorized user",HttpStatus.UNAUTHORIZED);
         }
 
@@ -74,59 +96,114 @@ public class AdminServices {
 
     }
 
-    public ResponseEntity<?> getAllProducts(String category, String authHeader) {
-        UserEntity user = userByToken.userDetails(authHeader);
 
-        if(!user.getRole().equals("ADMIN")){
-            return new ResponseEntity<>("Unauthorized user",HttpStatus.UNAUTHORIZED);
-        }
+//public ResponseEntity<?> getAllProducts(String authHeader) {
+//    UserEntity user = userByToken.userDetails(authHeader);
+//    System.out.println("Logged in user role: " + user.getRole());
+//
+//    if (!user.getRole().equalsIgnoreCase("admin")) {
+//        System.out.println("Unauthorized access attempt");
+//        return new ResponseEntity<>("Unauthorized user", HttpStatus.UNAUTHORIZED);
+//    }
+//
+//    List<ProductEntity> allProducts = productRepo.findAll();
+//    System.out.println("Total products found: " + allProducts.size());
+//
+//    return new ResponseEntity<>(allProducts, HttpStatus.OK);
+//}
+public ResponseEntity<?> getAllProducts(String authHeader) {
+    UserEntity user = userByToken.userDetails(authHeader);
+    System.out.println("Logged in user role: " + user.getRole());
 
-        if(category.isEmpty()){
-            throw new InputArgumentException("Category is empty");
-        }
-
-        return new ResponseEntity<>(productRepo.findByCategory(category),HttpStatus.OK);
+    if (!user.getRole().equalsIgnoreCase("admin")) {
+        System.out.println("Unauthorized access attempt");
+        return new ResponseEntity<>("Unauthorized user", HttpStatus.UNAUTHORIZED);
     }
 
-    public ResponseEntity<?> updateProduct(String productTitle, ProductEntity newProduct, String authHeader) {
-        UserEntity user = userByToken.userDetails(authHeader);
+    List<ProductEntity> allProducts = productRepo.findAll();
+    System.out.println("Total products found: " + allProducts.size());
 
-        if(!user.getRole().equals("ADMIN")){
-            return new ResponseEntity<>("Unauthorized user",HttpStatus.UNAUTHORIZED);
+    List<Map<String, Object>> cleanedProducts = allProducts.stream().map(product -> {
+        Object rawId = product.getId();
+        String idString = "";
+
+        if (rawId instanceof ObjectId) {
+            idString = ((ObjectId) rawId).toHexString();
+        } else if (rawId != null) {
+            idString = rawId.toString();
         }
 
+        Map<String, Object> cleaned = new HashMap<>();
+        cleaned.put("_id", idString);
+        cleaned.put("title", product.getTitle());
+        cleaned.put("description", product.getDescription());
+        cleaned.put("brand", product.getBrand());
+        cleaned.put("category", product.getCategory());
+        cleaned.put("price", product.getPrice());
+        cleaned.put("salePrice", product.getSalePrice());
+        cleaned.put("stock", product.getStock());
+        cleaned.put("imageUrl", product.getImageUrl());
+        cleaned.put("averageRating", product.getAverageRating());
+        cleaned.put("sumOfRatings", product.getSumOfRatings());
 
-        ProductEntity product = productRepo.findByTitle(productTitle);
+        return cleaned;
+    }).toList();
 
-        if(product == null){
-            throw new InputArgumentException("Product title is empty");
-        }
+    return new ResponseEntity<>(cleanedProducts, HttpStatus.OK);
+}
 
-        if(newProduct == null){
-            throw new InputArgumentException("new product is empty");
-        }
 
-        if(newProduct.getPrice() != 0){
-            product.setPrice(newProduct.getPrice());
-        }
 
-        if(newProduct.getDiscountPercent()!=0){
-            product.setDiscountPercent(newProduct.getDiscountPercent());
-        }
 
-        if(newProduct.getStock()!=0){
-            product.setStock(newProduct.getStock());
-        }
 
-        productRepo.save(product);
 
-        return new ResponseEntity<>(product,HttpStatus.OK);
+
+public ResponseEntity<?> updateProduct(String id, ProductEntity newProduct, String authHeader) {
+    UserEntity user = userByToken.userDetails(authHeader);
+
+    if (!user.getRole().equals("admin")) {
+        return new ResponseEntity<>("Unauthorized user", HttpStatus.UNAUTHORIZED);
     }
+
+    ProductEntity product = productRepo.findById(new ObjectId(id))
+            .orElseThrow(() -> new InputArgumentException("Product not found with id: " + id));
+
+    if (newProduct == null) {
+        throw new InputArgumentException("New product is empty");
+    }
+
+
+    if (newProduct.getTitle() != null && !newProduct.getTitle().isEmpty()) {
+        product.setTitle(newProduct.getTitle());
+    }
+
+    if (newProduct.getDescription() != null && !newProduct.getDescription().isEmpty()) {
+        product.setDescription(newProduct.getDescription());
+    }
+
+    if (newProduct.getBrand() != null && !newProduct.getBrand().isEmpty()) {
+        product.setBrand(newProduct.getBrand());
+    }
+
+    if (newProduct.getCategory() != null && !newProduct.getCategory().isEmpty()) {
+        product.setCategory(newProduct.getCategory());
+    }
+
+    if (newProduct.getPrice() != 0) product.setPrice(newProduct.getPrice());
+    if (newProduct.getSalePrice() != 0) product.setSalePrice(newProduct.getSalePrice());
+    if (newProduct.getStock() != 0) product.setStock(newProduct.getStock());
+
+    ProductEntity updatedProduct = productRepo.save(product);
+
+    return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
+}
+
+
 
     public ResponseEntity<?> updateOrder(String id,String title, String userName,String status, String authHeader) {
         UserEntity AdminUser = userByToken.userDetails(authHeader);
 
-        if(!AdminUser.getRole().equals("ADMIN")){
+        if(!AdminUser.getRole().equals("admin")){
             return new ResponseEntity<>("You are not allowed to modify",HttpStatus.UNAUTHORIZED);
         }
 

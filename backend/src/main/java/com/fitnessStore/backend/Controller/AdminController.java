@@ -7,6 +7,9 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/product")
@@ -17,8 +20,16 @@ public class AdminController {
 
 
     @PostMapping("/add")
-    public ResponseEntity<?> AddProducts(@RequestBody ProductEntity product, HttpServletRequest request){
-        return adminServices.addProduct(product,request.getHeader("Authorization"));
+    public ResponseEntity<?> AddProducts(@RequestParam("images") List<MultipartFile> files,
+                                         @RequestParam("title")String title,
+                                         @RequestParam("category")String category,
+                                         @RequestParam("brand")String brand,
+                                         @RequestParam("price")Double price,
+                                         @RequestParam("salePrice") Integer salePrice,
+                                         @RequestParam("description")String description,
+                                         @RequestParam("stock")Integer stock,
+                                         HttpServletRequest request){
+        return adminServices.addProduct(files,title,category,brand,price,salePrice,description,stock,request.getHeader("Authorization"));
     }
 
     @DeleteMapping("/delete")
@@ -26,15 +37,32 @@ public class AdminController {
         return adminServices.deleteProduct(title,request.getHeader("Authorization"));
     }
 
-    @GetMapping("/getAllProducts")
-    public ResponseEntity<?> RetrieveProducts(@RequestParam String category, HttpServletRequest request){
-        return adminServices.getAllProducts(category,request.getHeader("Authorization"));
-    }
+//    @GetMapping("/getAllProducts")
+//    public ResponseEntity<?> RetrieveProducts(@RequestParam String category, HttpServletRequest request){
+//        return adminServices.getAllProducts(category,request.getHeader("Authorization"));
+//    }
+@GetMapping("/getAllProducts")
+public ResponseEntity<?> RetrieveProducts(HttpServletRequest request) {
+    return adminServices.getAllProducts(request.getHeader("Authorization"));
+}
 
-    @PutMapping("/updateProduct")
-    public ResponseEntity<?> UpdateProduct(@RequestParam String title,@RequestBody ProductEntity product, HttpServletRequest request){
-        return adminServices.updateProduct(title,product,request.getHeader("Authorization"));
-    }
+
+
+//    @PutMapping("/updateProduct")
+//    public ResponseEntity<?> UpdateProduct(@RequestParam String title,@RequestBody ProductEntity product, HttpServletRequest request){
+//        return adminServices.updateProduct(title,product,request.getHeader("Authorization"));
+//    }
+@PutMapping("/edit/{id}")
+public ResponseEntity<?> updateProduct(
+        @PathVariable("id") String id,
+        @RequestBody ProductEntity product,
+        HttpServletRequest request
+) {
+    System.out.println("🟢 [EDIT PRODUCT API HIT] — ID: " + id + ", Payload: " );
+    return adminServices.updateProduct(id, product, request.getHeader("Authorization"));
+}
+
+
 
     @PutMapping("/updateOrder")
     public ResponseEntity<?> UpdateOrderStatus(@RequestParam String id, @RequestParam String title, @RequestParam String userName,@RequestParam String status,HttpServletRequest request){

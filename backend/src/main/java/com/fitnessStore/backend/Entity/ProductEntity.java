@@ -1,15 +1,15 @@
 package com.fitnessStore.backend.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,9 @@ import java.util.List;
 @Document(collection = "product_entity")
 public class ProductEntity {
 
+    @Getter
     @Id
+
     private ObjectId id;
 
     @Indexed(unique = true)
@@ -33,7 +35,9 @@ public class ProductEntity {
 
     private double price;
 
-    private int discountPercent;
+
+    private int salePrice;
+
 
     private String description;
 
@@ -50,4 +54,5 @@ public class ProductEntity {
     private List<ReviewEntity> reviews;
 
     private List<String> size= new ArrayList<>();
+
 }

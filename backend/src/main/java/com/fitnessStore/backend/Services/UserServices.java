@@ -19,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Component
@@ -43,19 +44,49 @@ public class UserServices {
         return new ResponseEntity<>(userRepo.save(user), HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> login(UserEntity user) {
-        try {
-            Authentication authentication = manager.authenticate(new UsernamePasswordAuthenticationToken(
-                    user.getEmail(), user.getPassword()
-            ));
+//    public ResponseEntity<?> login(String email,String password) {
+//        System.out.println(email+" "+password+" "+true);
+//        try {
+//            Authentication authentication = manager.authenticate(new UsernamePasswordAuthenticationToken(
+//                    email, password
+//            ));
+//
+//            return new ResponseEntity<>(jwtServices.generateToken(email), HttpStatus.OK);
+//
+//        }catch (AuthenticationException e){
+//            System.out.println("Invalid credentials");
+//            return new ResponseEntity<>("Invalid Username or password",HttpStatus.UNAUTHORIZED);
+//        }
+//    }
+public ResponseEntity<?> login(String email,String password) {
+    try {
+        Authentication authentication = manager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, password)
+        );
 
-            return new ResponseEntity<>(jwtServices.generateToken(user.getEmail()), HttpStatus.ACCEPTED);
+        String token = jwtServices.generateToken(email);
+        UserEntity user = userRepo.findByEmail(email);
 
-        }catch (AuthenticationException e){
-            System.out.println("Invalid credentials");
-            return new ResponseEntity<>("Invalid Username or password",HttpStatus.UNAUTHORIZED);
-        }
+        // ✅ Enrich the response
+        return new ResponseEntity<>(Map.of(
+                "success", true,
+                "token", token,
+                "user", user
+        ), HttpStatus.OK);
+
+    } catch (AuthenticationException e) {
+        return new ResponseEntity<>(Map.of(
+                "success", false,
+                "message", "Invalid credentials"
+        ), HttpStatus.UNAUTHORIZED);
     }
+}
+
+    public UserEntity getUserFromToken(String authHeader) {
+        return userByToken.userDetails(authHeader);
+    }
+
+
 
     public ResponseEntity<?> getAllUsers(String authHeader) {
         UserEntity user = userByToken.userDetails(authHeader);
@@ -103,3 +134,5 @@ public class UserServices {
         return new ResponseEntity<>(user.getReviews(),HttpStatus.OK);
     }
 }
+
+

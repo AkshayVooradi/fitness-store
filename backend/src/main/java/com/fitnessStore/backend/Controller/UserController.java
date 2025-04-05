@@ -32,16 +32,41 @@ public class UserController {
 
     @PostMapping("/user/signUp")
     public ResponseEntity<?> SignUp(@RequestBody UserEntity user){
+        System.out.println("SIGNUP API HIT");
+
         user.setPassword(encoder.encode(user.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
         user.setRole("USER");
         return userServices.SignUp(user);
     }
 
-    @GetMapping("/user/login")
-    public ResponseEntity<?> login(@RequestBody UserEntity user,HttpServletResponse response) throws IOException {
-        return userServices.login(user);
+
+    @PostMapping("/user/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> data) {
+        String email = data.get("email");
+        String password = data.get("password");
+        return userServices.login(email, password);
     }
+
+    @GetMapping("/auth/check-auth")
+    public ResponseEntity<?> checkAuth(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+
+        try {
+            UserEntity user = userServices.getUserFromToken(authHeader);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "user", user
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
+
 
     @GetMapping("/admin/getUsers")
     public ResponseEntity<?> getAllUsers(HttpServletRequest request){
