@@ -164,7 +164,7 @@ export const brandOptionsMap = {
 export const filterOptions = {
   category: [
     { id: "shirts", label: "Shirts" },
-    { id: "pant", label: "Pants" },
+    { id: "pants", label: "Pants" },
     { id: "gym equipment", label: "Gym Equipment" },
     { id: "supplements", label: "Supplements" },
     { id: "shoes", label: "Shoes" },
@@ -184,41 +184,4 @@ export const sortOptions = [
   { id: "price-hightolow", label: "Price: High to Low" },
   { id: "title-atoz", label: "Title: A to Z" },
   { id: "title-ztoa", label: "Title: Z to A" },
-];
-
-export const addressFormControls = [
-  {
-    label: "Address",
-    name: "address",
-    componentType: "input",
-    type: "text",
-    placeholder: "Enter your address",
-  },
-  {
-    label: "City",
-    name: "city",
-    componentType: "input",
-    type: "text",
-    placeholder: "Enter your city",
-  },
-  {
-    label: "Pincode",
-    name: "pincode",
-    componentType: "input",
-    type: "text",
-    placeholder: "Enter your pincode",
-  },
-  {
-    label: "Phone",
-    name: "phone",
-    componentType: "input",
-    type: "text",
-    placeholder: "Enter your phone number",
-  },
-  {
-    label: "Notes",
-    name: "notes",
-    componentType: "textarea",
-    placeholder: "Enter any additional notes",
-  },
 ];

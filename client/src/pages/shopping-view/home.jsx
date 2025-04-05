@@ -1,7 +1,4 @@
 import { Button } from "@/components/ui/button";
-import bannerOne from "../../assets/banner-1.webp";
-import bannerTwo from "../../assets/banner-2.webp";
-import bannerThree from "../../assets/banner-3.webp";
 import {
   Airplay,
   BabyIcon,
@@ -16,6 +13,10 @@ import {
   UmbrellaIcon,
   WashingMachine,
   WatchIcon,
+  Dumbbell,
+  Footprints,
+  Pill,
+  Link,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
@@ -30,23 +31,22 @@ import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/components/ui/use-toast";
 import ProductDetailsDialog from "@/components/shopping-view/product-details";
 import { getFeatureImages } from "@/store/common-slice";
-import ShoppingCheckout from "./checkout";
 
 const categoriesWithIcon = [
   { id: "shirts", label: "Shirts", icon: ShirtIcon },
-  { id: "pants", label: "Pants", icon: CloudLightning },
-  { id: "gym equipment", label: "Gym Equipment", icon: BabyIcon },
-  { id: "supplements", label: "Supplements", icon: WatchIcon },
-  { id: "shoes", label: "Shoes", icon: UmbrellaIcon },
+  { id: "pants", label: "Pants", icon: ShirtIcon },
+  { id: "gym equipment", label: "Gym Equipment", icon: Dumbbell },
+  { id: "supplements", label: "Supplements", icon: Pill },
+  { id: "shoes", label: "Shoes", icon: Footprints },
 ];
 
 const brandsWithIcon = [
-  { id: "nike", label: "Nike", icon: Shirt },
-  { id: "adidas", label: "Adidas", icon: WashingMachine },
-  { id: "puma", label: "Puma", icon: ShoppingBasket },
-  { id: "levi", label: "Levi's", icon: Airplay },
-  { id: "zara", label: "Zara", icon: Images },
-  { id: "h&m", label: "H&M", icon: Heater },
+  { id: "nike", label: "Nike", icon: Link },
+  { id: "adidas", label: "Adidas", icon: Link },
+  { id: "puma", label: "Puma", icon: Link },
+  { id: "levi", label: "Levi's", icon: Link },
+  { id: "zara", label: "Zara", icon: Link },
+  { id: "h&m", label: "H&M", icon: Link },
 ];
 function ShoppingHome() {
   const [currentSlide, setCurrentSlide] = useState(0);
