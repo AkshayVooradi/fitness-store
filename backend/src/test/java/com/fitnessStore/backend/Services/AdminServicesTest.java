@@ -50,34 +50,6 @@ class AdminServicesTest {
         MockitoAnnotations.openMocks(this);
     }
 
-//
-//    @Test
-//    void addProduct() {
-//    }
-//
-//    @Test
-//    void deleteProduct() {
-//    }
-//
-//    @Test
-//    void getAllProducts() {
-//    }
-//
-//    @Test
-//    void updateProduct() {
-//    }
-//
-//    @Test
-//    void updateOrderById() {
-//    }
-//
-//    @Test
-//    void getAllOrders() {
-//    }
-//
-//    @Test
-//    void getOrderById() {
-
     @Test
     void testAddProduct_Success() {
         UserEntity user = UserEntity.builder().role("admin").build();
