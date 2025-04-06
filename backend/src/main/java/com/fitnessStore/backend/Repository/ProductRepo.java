@@ -16,6 +16,4 @@ public interface ProductRepo extends MongoRepository<ProductEntity,String> {
 
     List<ProductEntity> findByCategory(String category);
 
-
-
 }

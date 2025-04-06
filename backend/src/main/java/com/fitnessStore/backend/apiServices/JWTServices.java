@@ -66,7 +66,7 @@ public class JWTServices {
         return claimResolver.apply(claims);
     }
 
-    private Claims extractAllClaims(String token) {
+    Claims extractAllClaims(String token) {
         try {
             return Jwts.parser()
                     .verifyWith(getKey())
@@ -101,11 +101,15 @@ public class JWTServices {
        return (email.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    private boolean isTokenExpired(String token) {
+    boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) {
+    Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
+    }
+
+    public String getSecretKey() {
+        return secretKey;
     }
 }

@@ -10,4 +10,6 @@ public interface UserRepo extends MongoRepository<UserEntity,String> {
     Optional<UserEntity> findByEmail(String email);
 
     UserEntity findByUsername(String userName);
+
+    void deleteByEmail(String email);
 }
