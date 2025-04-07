@@ -5,10 +5,7 @@ import com.fitnessStore.backend.Repository.FeatureRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,10 +19,10 @@ public class FeatureController {
     private FeatureRepo featureRepo;
 
     @PostMapping("/add")
-    public ResponseEntity<?> UploadImage(){
+    public ResponseEntity<?> UploadImage(@RequestBody Map<String,String> credentials){
 
         FeatureEntity feature = FeatureEntity.builder()
-                .image("sample")
+                .image(credentials.get("image"))
                 .build();
 
         featureRepo.save(feature);

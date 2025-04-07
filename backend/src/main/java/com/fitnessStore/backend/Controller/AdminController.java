@@ -22,14 +22,14 @@ public class AdminController {
     private AdminServices adminServices;
 
     @PostMapping("/product/upload-image")
-    public ResponseEntity<?> uploadImage(@RequestParam("my_file") MultipartFile file,@CookieValue(value = "token",defaultValue = "")String token){
-        return adminServices.uploadImage(file,token);
+    public ResponseEntity<?> uploadImage(@RequestBody MultipartFile my_file,@CookieValue(value = "token",defaultValue = "")String token){
+        return adminServices.uploadImage(my_file,token);
     }
 
 
     @PostMapping("/product/add")
     public ResponseEntity<?> AddProducts(@RequestBody Map<String,String> credentials, @CookieValue(value = "token",defaultValue = "")String token){
-        return adminServices.addProduct(credentials.get("title"),credentials.get("category"),credentials.get("brand"),credentials.get("price"),credentials.get("salePrice"),credentials.get("description"),credentials.get("totalStock"),token);
+        return adminServices.addProduct(credentials.get("title"),credentials.get("category"),credentials.get("brand"),credentials.get("price"),credentials.get("salePrice"),credentials.get("description"),credentials.get("totalStock"),credentials.get("image"),token);
     }
 
     @DeleteMapping("/product/delete/{id}")
