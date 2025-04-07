@@ -40,7 +40,7 @@ public class AdminServices {
     private CloudinaryService cloudinaryService;
 
 
-    public ResponseEntity<?> addProduct(String title,String category,String brand,String price,String salePrice,String description,String totalStock, String authHeader) {
+    public ResponseEntity<?> addProduct(String title,String category,String brand,String price,String salePrice,String description,String totalStock,String image, String authHeader) {
         UserEntity user = userByToken.userDetails(authHeader);
 
         Map<String,Object> responseBody = new HashMap<>();
@@ -63,7 +63,7 @@ public class AdminServices {
                 .salePrice(Double.parseDouble(salePrice))
                 .description(description)
                 .totalStock(Integer.parseInt(totalStock))
-                .image("sample")
+                .image(image)
                 .build();
 
 
@@ -201,7 +201,7 @@ public class AdminServices {
         Map uploadResult = cloudinaryService.upload(myFile);
 
         responseBody.put("success",true);
-        responseBody.putAll(uploadResult);
+        responseBody.put("result",uploadResult.get("secure_url"));
 
 
         return new ResponseEntity<>(responseBody,HttpStatus.OK);

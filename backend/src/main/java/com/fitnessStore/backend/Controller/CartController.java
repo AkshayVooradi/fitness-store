@@ -33,7 +33,7 @@ public class CartController {
     }
 
     @PutMapping("/update")
-    private ResponseEntity<?> updateProduct(@CookieValue(value = "token", defaultValue = "")String token,@RequestBody Map<String ,String> credentials){
+    ResponseEntity<?> updateProduct(@CookieValue(value = "token", defaultValue = "") String token, @RequestBody Map<String, String> credentials){
         return cartServices.updateProduct(credentials.get("productId"),credentials.get("quantity"),token);
     }
 }

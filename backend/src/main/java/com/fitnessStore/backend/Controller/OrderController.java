@@ -33,7 +33,7 @@ public class OrderController {
     }
 
     @DeleteMapping
-    private ResponseEntity<?> cancelOrder(@RequestParam String id,@RequestParam String title, HttpServletRequest request){
+    ResponseEntity<?> cancelOrder(@RequestParam String id, @RequestParam String title, HttpServletRequest request){
         return orderServices.cancelOrder(id,title,request.getHeader("Authorization"));
     }
 }

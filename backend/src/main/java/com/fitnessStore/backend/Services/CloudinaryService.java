@@ -43,7 +43,6 @@ public class CloudinaryService implements CloudinaryImageUpload {
     @Override
     public Map upload(MultipartFile file) {
         try {
-            System.out.println(file.getOriginalFilename());
             Map data = cloudinary.uploader().upload(file.getBytes(), Map.of());
             return data;
         }catch (IOException e){
