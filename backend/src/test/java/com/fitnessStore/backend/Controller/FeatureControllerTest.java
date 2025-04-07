@@ -33,14 +33,14 @@ class FeatureControllerTest {
     }
 
     @Test
-    public void testUploadImage() {
+    public void testUploadImage(String url) {
         FeatureEntity feature = FeatureEntity.builder()
-                .image("sample")
+                .image(url)
                 .build();
 
         when(featureRepo.save(any(FeatureEntity.class))).thenReturn(feature);
 
-        ResponseEntity<?> result = featureController.UploadImage();
+        ResponseEntity<?> result = featureController.UploadImage(Map.of());
 
         assertEquals(HttpStatus.CREATED, result.getStatusCode());
         Map<String, Object> responseBody = (Map<String, Object>) result.getBody();
