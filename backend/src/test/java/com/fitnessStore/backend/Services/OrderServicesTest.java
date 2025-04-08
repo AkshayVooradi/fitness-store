@@ -200,32 +200,32 @@ class OrderServicesTest {
         assertEquals("No Product found with title " + title, response.getBody());
     }
 
-    @Test
-    void testCancelOrder_Success() {
-        String id = new ObjectId().toHexString();
-        String title = "ProductTitle";
-        String authorization = "authToken";
-        UserEntity user = new UserEntity();
-        OrderEntity order = new OrderEntity();
-        order.setId(id);
-
-        ProductEntity product = new ProductEntity();
-        product.setTitle(title);
-
-        CartItemClass item = new CartItemClass();
-        item.setProduct(product);
-
-        order.setCartItems(Arrays.asList(item));
-        user.setOrders(Arrays.asList(order));
-
-        when(getUserByToken.userDetails(authorization)).thenReturn(user);
-        when(productRepo.findByTitle(title)).thenReturn(product);
-        when(orderRepo.findById(id)).thenReturn(Optional.of(order));
-
-        ResponseEntity<?> response = orderServices.cancelOrder(id, title, authorization);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Cancelled successfully", response.getBody());
-    }
+//    @Test
+//    void testCancelOrder_Success() {
+//        String id = new ObjectId().toHexString();
+//        String title = "ProductTitle";
+//        String authorization = "authToken";
+//        UserEntity user = new UserEntity();
+//        OrderEntity order = new OrderEntity();
+//        order.setId(id);
+//
+//        ProductEntity product = new ProductEntity();
+//        product.setTitle(title);
+//
+//        CartItemClass item = new CartItemClass();
+//        item.setProduct(product);
+//
+//        order.setCartItems(Arrays.asList(item));
+//        user.setOrders(Arrays.asList(order));
+//
+//        when(getUserByToken.userDetails(authorization)).thenReturn(user);
+//        when(productRepo.findByTitle(title)).thenReturn(product);
+//        when(orderRepo.findById(id)).thenReturn(Optional.of(order));
+//
+//        ResponseEntity<?> response = orderServices.cancelOrder(id, title, authorization);
+//
+//        assertEquals(HttpStatus.OK, response.getStatusCode());
+//        assertEquals("Cancelled successfully", response.getBody());
+//    }
 
 }

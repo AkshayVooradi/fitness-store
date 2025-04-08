@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   backend:
-    image: back-end
+    image: vooradiakshay741/fitness-store-backend
     container_name: fitness-backend
     ports:
       - "8080:8080"
@@ -10,7 +10,7 @@ services:
       - fitness-net
 
   frontend:
-    image: front-end
+    image: vooradiakshay741/fitness-store-frontend
     container_name: fitness-frontend
     ports:
       - "5173:5173"

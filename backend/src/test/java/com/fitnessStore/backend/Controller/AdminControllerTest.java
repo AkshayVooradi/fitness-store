@@ -54,15 +54,16 @@ class AdminControllerTest {
         credentials.put("price", "100");
         credentials.put("salePrice", "80");
         credentials.put("description", "Product Description");
+        credentials.put("image","img_url");
         credentials.put("totalStock", "50");
 
-        when(adminServices.addProduct(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString()))
+        when(adminServices.addProduct(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString()))
                 .thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
         ResponseEntity<?> result = adminController.AddProducts(credentials, "token");
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        verify(adminServices, times(1)).addProduct("Product Title", "Category", "Brand", "100", "80", "Product Description", "50", "token");
+        verify(adminServices, times(1)).addProduct("Product Title", "Category", "Brand", "100", "80", "Product Description", "50", "img_url","token");
     }
 
     @Test

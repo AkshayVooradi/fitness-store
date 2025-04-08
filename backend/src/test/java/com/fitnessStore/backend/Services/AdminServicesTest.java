@@ -54,7 +54,7 @@ class AdminServicesTest {
         UserEntity user = UserEntity.builder().role("admin").build();
         when(userByToken.userDetails(anyString())).thenReturn(user);
 
-        ResponseEntity<?> response = adminServices.addProduct("title", "category", "brand", "100", "90", "description", "10", "token");
+        ResponseEntity<?> response = adminServices.addProduct("title", "category", "brand", "100", "90", "description", "10","img_url","token");
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(true, ((Map<String, Object>) response.getBody()).get("success"));
@@ -65,7 +65,7 @@ class AdminServicesTest {
         UserEntity user = UserEntity.builder().role("user").build();
         when(userByToken.userDetails(anyString())).thenReturn(user);
 
-        ResponseEntity<?> response = adminServices.addProduct("title", "category", "brand", "100", "90", "description", "10", "token");
+        ResponseEntity<?> response = adminServices.addProduct("title", "category", "brand", "100", "90", "description", "10", "img_url","token");
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
         assertEquals(false, ((Map<String, Object>) response.getBody()).get("success"));

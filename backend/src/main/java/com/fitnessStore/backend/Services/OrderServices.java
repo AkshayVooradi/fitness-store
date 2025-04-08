@@ -64,6 +64,7 @@ public class OrderServices {
                 .orderDate(LocalDateTime.now())
                 .cartItems(new ArrayList<>())
                 .totalAmount(Double.parseDouble(totalCartAmount))
+                .isCancelled(false)
                 .build();
 
         List<OrderEntity> orders = user.getOrders();
@@ -110,11 +111,11 @@ public class OrderServices {
     public ResponseEntity<?> getOrders(String authorization) {
         UserEntity user = getUserByToken.userDetails(authorization);
 
-        List<OrderEntity> orders = user.getOrders();
+        List<OrderEntity> orders = orderRepo.findByUserId(user.getId());
 
         Map<String,Object> responseBody = new HashMap<>();
 
-        if(orders.isEmpty()){
+        if(orders == null || orders.isEmpty()){
 
             responseBody.put("success",false);
             responseBody.put("message","no orders found");

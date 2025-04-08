@@ -3,6 +3,6 @@ spring:
     name: backend
   data:
     mongodb:
-      uri: mongodb://localhost:27017
+      uri: mongodb+srv://akshay:akshay@cluster0.ijnamok.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
       auto-index-creation: true
       database: fitness_store

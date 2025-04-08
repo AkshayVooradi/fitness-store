@@ -41,4 +41,6 @@ public class OrderEntity {
     private LocalDateTime orderUpdateDate;
 
     private double totalAmount;
+
+    private boolean isCancelled;
 }

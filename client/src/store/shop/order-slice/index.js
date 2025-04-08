@@ -31,6 +31,8 @@ export const getAllOrdersByUserId = createAsyncThunk(
       }
     );
 
+    console.log(response.data,"Aksagyuvsac");
+
     return response.data;
   }
 );

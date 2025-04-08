@@ -1,9 +1,6 @@
 package com.fitnessStore.backend.Controller;
 
-import com.fitnessStore.backend.Entity.ReviewEntity;
 import com.fitnessStore.backend.Services.ReviewServices;
-import jakarta.servlet.http.HttpServletRequest;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

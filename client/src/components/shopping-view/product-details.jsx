@@ -3,7 +3,6 @@ import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent } from "../ui/dialog";
 import { Separator } from "../ui/separator";
-import { Input } from "../ui/input";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "../ui/use-toast";
@@ -22,12 +21,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   const { reviews } = useSelector((state) => state.shopReview);
 
   const { toast } = useToast();
-
-  function handleRatingChange(getRating) {
-    console.log(getRating, "getRating");
-
-    setRating(getRating);
-  }
 
   function handleAddToCart(getCurrentProductId, getTotalStock) {
     let getCartItems = cartItems.items || [];
@@ -69,31 +62,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
     dispatch(setProductDetails());
     setRating(0);
     setReviewMsg("");
-  }
-
-  function handleAddReview() {
-    dispatch(
-      addReview({
-        productId: productDetails?.id,
-        reviewMessage: reviewMsg,
-        reviewValue: rating,
-      })
-    ).then((data) => {
-      if (data?.payload?.success) {
-        setRating(0);
-        setReviewMsg("");
-        dispatch(getReviews(productDetails?.id));
-        console.log(reviews, "akshay", true);
-        toast({
-          title: data?.payload?.message,
-        });
-      } else {
-        toast({
-          title: data.payload.message,
-          variant: "destructive",
-        });
-      }
-    });
   }
 
   useEffect(() => {
@@ -196,27 +164,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
               ) : (
                 <h1>No Reviews</h1>
               )}
-            </div>
-            <div className="mt-10 flex-col flex gap-2">
-              <Label>Write a review</Label>
-              <div className="flex gap-1">
-                <StarRatingComponent
-                  rating={rating}
-                  handleRatingChange={handleRatingChange}
-                />
-              </div>
-              <Input
-                name="reviewMsg"
-                value={reviewMsg}
-                onChange={(event) => setReviewMsg(event.target.value)}
-                placeholder="Write a review..."
-              />
-              <Button
-                onClick={handleAddReview}
-                disabled={reviewMsg.trim() === ""}
-              >
-                Submit
-              </Button>
             </div>
           </div>
         </div>
