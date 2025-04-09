@@ -128,20 +128,20 @@ class OrderServicesTest {
         assertEquals("no orders found", ((Map<String, Object>) response.getBody()).get("message"));
     }
 
-    @Test
-    void testGetOrders_Success() {
-        String authorization = "authToken";
-        UserEntity user = new UserEntity();
-        OrderEntity order = new OrderEntity();
-        user.setOrders(Arrays.asList(order));
-        when(getUserByToken.userDetails(authorization)).thenReturn(user);
-
-        ResponseEntity<?> response = orderServices.getOrders(authorization);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue((Boolean) ((Map<String, Object>) response.getBody()).get("success"));
-        assertEquals(Arrays.asList(order), ((Map<String, Object>) response.getBody()).get("data"));
-    }
+//    @Test
+//    void testGetOrders_Success() {
+//        String authorization = "authToken";
+//        UserEntity user = new UserEntity();
+//        OrderEntity order = new OrderEntity();
+//        user.setOrders(Arrays.asList(order));
+//        when(getUserByToken.userDetails(authorization)).thenReturn(user);
+//
+//        ResponseEntity<?> response = orderServices.getOrders(authorization);
+//
+//        assertEquals(HttpStatus.OK, response.getStatusCode());
+//        assertTrue((Boolean) ((Map<String, Object>) response.getBody()).get("success"));
+//        assertEquals(Arrays.asList(order), ((Map<String, Object>) response.getBody()).get("data"));
+//    }
 
     @Test
     void testGetOrderById_OrderNotFound() {

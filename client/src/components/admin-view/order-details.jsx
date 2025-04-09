@@ -99,7 +99,8 @@ function AdminOrderDetailsView({ orderDetails }) {
             </div>
           </div>
         </div>
-        {orderDetails?.orderStatus !== "cancelled" ? (
+        {orderDetails?.orderStatus !== "cancelled" &&
+        orderDetails?.orderStatus !== "delivered" ? (
           <div>
             <CommonForm
               formControls={[
