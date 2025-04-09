@@ -12,17 +12,52 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import WriteReview from "./review";
+
+import {
+  cancelOrderById,
+  getAllOrdersByUserId,
+  getOrderDetails,
+} from "@/store/shop/order-slice";
+import { useToast } from "../ui/use-toast";
 
 function ShoppingOrderDetailsView({ orderDetails }) {
   const dispatch = useDispatch();
   const [openReviewDialog, setOpenReviewDialog] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
+  const { toast } = useToast();
+  const [orderInfo, setOrderInfo] = useState(null);
+
+  useEffect(() => {
+    if (orderDetails) {
+      setOrderInfo(orderDetails);
+    }
+  }, [orderDetails]);
 
   const handleOpenReview = (productId) => {
     setSelectedProductId(productId);
     setOpenReviewDialog(true);
+  };
+
+  const handleCancelOrder = (orderId) => {
+    dispatch(cancelOrderById(orderId)).then((data) => {
+      if (data?.payload?.success) {
+        toast({
+          title: data?.payload?.message,
+        });
+        setOrderInfo((prev) => ({
+          ...prev,
+          orderStatus: "cancelled",
+        }));
+        dispatch(getAllOrdersByUserId());
+      } else {
+        toast({
+          title: data?.payload?.message,
+          variant: "destructive",
+        });
+      }
+    });
   };
 
   return (
@@ -31,29 +66,30 @@ function ShoppingOrderDetailsView({ orderDetails }) {
         <div className="grid gap-2">
           <div className="flex mt-6 items-center justify-between">
             <p className="font-medium">Order ID</p>
-            <Label>{orderDetails?.id}</Label>
+            <Label>{orderInfo?.id}</Label>
           </div>
           <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Order Date</p>
-            <Label>{orderDetails?.orderDate.split("T")[0]}</Label>
+            <Label>{orderInfo?.orderDate.split("T")[0]}</Label>
           </div>
           <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Order Price</p>
-            <Label>${orderDetails?.totalAmount}</Label>
+            <Label>${orderInfo?.totalAmount}</Label>
           </div>
           <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Order Status</p>
             <Label>
               <Badge
                 className={`py-1 px-3 ${
-                  orderDetails?.orderStatus === "confirmed"
+                  orderInfo?.orderStatus === "confirmed"
                     ? "bg-green-500"
-                    : orderDetails?.orderStatus === "rejected"
+                    : orderInfo?.orderStatus === "rejected" ||
+                      orderInfo?.orderStatus === "cancelled"
                     ? "bg-red-600"
                     : "bg-black"
                 }`}
               >
-                {orderDetails?.orderStatus}
+                {orderInfo?.orderStatus}
               </Badge>
             </Label>
           </div>
@@ -68,19 +104,19 @@ function ShoppingOrderDetailsView({ orderDetails }) {
                   <TableHead>Title</TableHead>
                   <TableHead>Quantity</TableHead>
                   <TableHead>Price</TableHead>
-                  {orderDetails?.orderStatus === "delivered" ? (
+                  {orderInfo?.orderStatus === "delivered" ? (
                     <TableHead>Reviews</TableHead>
                   ) : null}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {orderDetails?.cartItems && orderDetails?.cartItems.length > 0
-                  ? orderDetails?.cartItems.map((item) => (
+                {orderInfo?.cartItems && orderInfo?.cartItems.length > 0
+                  ? orderInfo?.cartItems.map((item) => (
                       <TableRow>
                         <TableCell>{item.title}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
                         <TableCell>{item.price}</TableCell>
-                        {orderDetails?.orderStatus === "delivered" ? (
+                        {orderInfo?.orderStatus === "delivered" ? (
                           <TableCell>
                             <Button
                               className="w-full"
@@ -105,59 +141,19 @@ function ShoppingOrderDetailsView({ orderDetails }) {
                 </DialogContent>
               </Dialog>
             </Table>
-            {/* <ul className="grid gap-3">
-              {orderDetails?.cartItems && orderDetails?.cartItems.length > 0
-                ? orderDetails?.cartItems.map((item) => (
-                    <li className="flex items-center justify-between">
-                      <span>Title: {item.title}</span>
-                      <span>Quantity: {item.quantity}</span>
-                      <span>Price: ${item.price}</span>
-                      {orderDetails?.orderStatus === "delivered" ? (
-                        // <div className="mt-10 flex-col flex gap-2">
-                        //   <Label>Write a review</Label>
-                        //   <div className="flex gap-1">
-                        //     <StarRatingComponent
-                        //       rating={rating}
-                        //       handleRatingChange={handleRatingChange}
-                        //     />
-                        //   </div>
-                        //   <Input
-                        //     name="reviewMsg"
-                        //     value={reviewMsg}
-                        //     onChange={(event) =>
-                        //       setReviewMsg(event.target.value)
-                        //     }
-                        //     placeholder="Write a review..."
-                        //   />
-                        //   <Button
-                        //     onClick={handleAddReview}
-                        //     disabled={reviewMsg.trim() === ""}
-                        //   >
-                        //     Submit
-                        //   </Button>
-                        // </div>
-                        <span>
-                          <Button className="w-full" onClick={() => {}}>
-                            Write Review
-                          </Button>
-                        </span>
-                      ) : null}
-                    </li>
-                  ))
-                : null}
-            </ul> */}
           </div>
         </div>
         <div className="grid gap-4">
-          {orderDetails?.orderStatus !== "delivered" &&
-          orderDetails?.orderStatus !== "rejected" ? (
+          {orderInfo?.orderStatus !== "delivered" &&
+          orderInfo?.orderStatus !== "rejected" &&
+          orderInfo?.orderStatus !== "cancelled" ? (
             <div className="grid gap-2">
               <div className="font-medium">Cancel Order</div>
               <div className="grid gap-0.5 text-muted-foreground">
                 <Button
                   className="w-full"
                   onClick={() => {
-                    handleCancelOrder(orderDetails?.id);
+                    handleCancelOrder(orderInfo?.id);
                   }}
                 >
                   Cancel Order

@@ -7,14 +7,22 @@ import { createOrder } from "@/store/shop/order-slice";
 import { data } from "autoprefixer";
 import { toast } from "../ui/use-toast";
 import { fetchCartItems } from "@/store/shop/cart-slice";
+import { useEffect, useState } from "react";
 
 function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [cartInfo, setCartInfo] = useState(null);
+
+  useEffect(() => {
+    if (cartItems) {
+      setCartInfo(cartItems);
+    }
+  }, [cartItems]);
 
   const totalCartAmount =
-    cartItems && cartItems.length > 0
-      ? cartItems.reduce(
+    cartInfo && cartInfo.length > 0
+      ? cartInfo.reduce(
           (sum, currentItem) =>
             sum +
             (currentItem?.salePrice > 0
@@ -26,8 +34,6 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
       : 0;
 
   const handleCheckout = () => {
-    console.log(true, "akshay");
-
     const formData = {
       totalCartAmount,
     };
@@ -37,7 +43,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
         toast({
           title: data.payload.message,
         });
-        dispatch(fetchCartItems(user?.id));
+        dispatch(fetchCartItems());
       } else {
         toast({
           title: data.payload.message,
@@ -53,8 +59,8 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
         <SheetTitle>Your Cart</SheetTitle>
       </SheetHeader>
       <div className="mt-8 space-y-4">
-        {cartItems && cartItems.length > 0
-          ? cartItems.map((item) => <UserCartItemsContent cartItem={item} />)
+        {cartInfo && cartInfo.length > 0
+          ? cartInfo.map((item) => <UserCartItemsContent cartItem={item} />)
           : null}
       </div>
       <div className="mt-8 space-y-4">

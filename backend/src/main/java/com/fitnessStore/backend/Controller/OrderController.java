@@ -32,8 +32,8 @@ public class OrderController {
         return orderServices.getOrderById(id);
     }
 
-    @DeleteMapping
-    ResponseEntity<?> cancelOrder(@RequestParam String id, @RequestParam String title, HttpServletRequest request){
-        return orderServices.cancelOrder(id,title,request.getHeader("Authorization"));
+    @PutMapping("/cancel/{id}")
+    ResponseEntity<?> cancelOrder(@CookieValue(value = "token",defaultValue = "") String token,@PathVariable String id){
+        return orderServices.cancelOrder(id,token);
     }
 }

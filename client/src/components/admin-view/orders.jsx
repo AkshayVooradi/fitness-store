@@ -32,8 +32,6 @@ function AdminOrdersView() {
     dispatch(getAllOrdersForAdmin());
   }, [dispatch]);
 
-  console.log(orderDetails, "orderList");
-
   useEffect(() => {
     if (orderDetails !== null) setOpenDetailsDialog(true);
   }, [orderDetails]);
@@ -67,7 +65,8 @@ function AdminOrdersView() {
                         className={`py-1 px-3 ${
                           orderItem?.orderStatus === "confirmed"
                             ? "bg-green-500"
-                            : orderItem?.orderStatus === "rejected"
+                            : orderItem?.orderStatus === "rejected" ||
+                              orderItem?.orderStatus === "cancelled"
                             ? "bg-red-600"
                             : "bg-black"
                         }`}

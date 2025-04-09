@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminServices {
@@ -219,6 +220,8 @@ public class AdminServices {
         }
 
         List<OrderEntity> orders = orderRepo.findAll();
+
+//        List<OrderEntity> validOrders = orders.stream().filter(orderEntity -> !orderEntity.isCancelled()).collect(Collectors.toList());
 
         responseBody.put("success",true);
         responseBody.put("data",orders);

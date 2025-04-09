@@ -22,8 +22,6 @@ function AdminOrderDetailsView({ orderDetails }) {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-  console.log(orderDetails, "orderDetailsorderDetails");
-
   function handleUpdateStatus(event) {
     event.preventDefault();
     const { status } = formData;
@@ -65,7 +63,8 @@ function AdminOrderDetailsView({ orderDetails }) {
                 className={`py-1 px-3 ${
                   orderDetails?.orderStatus === "confirmed"
                     ? "bg-green-500"
-                    : orderDetails?.orderStatus === "rejected"
+                    : orderDetails?.orderStatus === "rejected" ||
+                      orderDetails?.orderStatus === "cancelled"
                     ? "bg-red-600"
                     : "bg-black"
                 }`}
@@ -100,29 +99,30 @@ function AdminOrderDetailsView({ orderDetails }) {
             </div>
           </div>
         </div>
-
-        <div>
-          <CommonForm
-            formControls={[
-              {
-                label: "Order Status",
-                name: "status",
-                componentType: "select",
-                options: [
-                  { id: "pending", label: "Pending" },
-                  { id: "inProcess", label: "In Process" },
-                  { id: "inShipping", label: "In Shipping" },
-                  { id: "delivered", label: "Delivered" },
-                  { id: "rejected", label: "Rejected" },
-                ],
-              },
-            ]}
-            formData={formData}
-            setFormData={setFormData}
-            buttonText={"Update Order Status"}
-            onSubmit={handleUpdateStatus}
-          />
-        </div>
+        {orderDetails?.orderStatus !== "cancelled" ? (
+          <div>
+            <CommonForm
+              formControls={[
+                {
+                  label: "Order Status",
+                  name: "status",
+                  componentType: "select",
+                  options: [
+                    { id: "pending", label: "Pending" },
+                    { id: "inProcess", label: "In Process" },
+                    { id: "inShipping", label: "In Shipping" },
+                    { id: "delivered", label: "Delivered" },
+                    { id: "rejected", label: "Rejected" },
+                  ],
+                },
+              ]}
+              formData={formData}
+              setFormData={setFormData}
+              buttonText={"Update Order Status"}
+              onSubmit={handleUpdateStatus}
+            />
+          </div>
+        ) : null}
       </div>
     </DialogContent>
   );

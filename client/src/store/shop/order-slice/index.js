@@ -31,8 +31,6 @@ export const getAllOrdersByUserId = createAsyncThunk(
       }
     );
 
-    console.log(response.data,"Aksagyuvsac");
-
     return response.data;
   }
 );
@@ -49,6 +47,19 @@ export const getOrderDetails = createAsyncThunk(
     return response.data;
   }
 );
+
+export const cancelOrderById = createAsyncThunk(
+  "order/cancelOrder",
+  async (id) =>{
+    const response = await axios.put(
+      `http://localhost:8080/api/order/cancel/${id}`,{},{
+        withCredentials: true
+      }
+    );
+
+    return response.data;
+  }
+)
 
 const shoppingOrderSlice = createSlice({
   name: "shoppingOrderSlice",
@@ -92,10 +103,20 @@ const shoppingOrderSlice = createSlice({
       .addCase(getOrderDetails.fulfilled, (state, action) => {
         state.isLoading = false;
         state.orderDetails = action.payload.data;
+        // console.log(action.data,"data")
       })
       .addCase(getOrderDetails.rejected, (state) => {
         state.isLoading = false;
         state.orderDetails = null;
+      })
+      .addCase(cancelOrderById.pending,(state) =>{
+        state.isLoading = true;
+      })
+      .addCase(cancelOrderById.fulfilled,(state)=>{
+        state.isLoading=false;
+      })
+      .addCase(cancelOrderById.rejected,(state)=>{
+        state.isLoading=true;
       });
   },
 });

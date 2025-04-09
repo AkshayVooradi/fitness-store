@@ -37,8 +37,6 @@ function ShoppingOrders() {
     if (orderDetails !== null) setOpenDetailsDialog(true);
   }, [orderDetails]);
 
-  console.log(orderDetails, "orderDetails");
-
   return (
     <Card>
       <CardHeader>
@@ -68,7 +66,8 @@ function ShoppingOrders() {
                         className={`py-1 px-3 ${
                           orderItem?.orderStatus === "confirmed"
                             ? "bg-green-500"
-                            : orderItem?.orderStatus === "rejected"
+                            : orderItem?.orderStatus === "rejected" ||
+                              orderItem?.orderStatus === "cancelled"
                             ? "bg-red-600"
                             : "bg-black"
                         }`}

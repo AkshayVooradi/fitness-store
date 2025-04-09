@@ -47,8 +47,6 @@ function AdminProducts() {
   function onSubmit(event) {
     event.preventDefault();
 
-    console.log(currentEditedId);
-
     currentEditedId !== null
       ? dispatch(
           editProduct({
@@ -56,8 +54,6 @@ function AdminProducts() {
             formData,
           })
         ).then((data) => {
-          console.log(data, "edit");
-
           if (data?.payload?.success) {
             dispatch(fetchAllProducts());
             setFormData(initialFormData);
@@ -72,7 +68,6 @@ function AdminProducts() {
           })
         ).then((data) => {
           if (data?.payload?.success) {
-            console.log(data);
             dispatch(fetchAllProducts());
             setOpenCreateProductsDialog(false);
             setImageFile(null);
@@ -102,8 +97,6 @@ function AdminProducts() {
   useEffect(() => {
     dispatch(fetchAllProducts());
   }, [dispatch]);
-
-  console.log(formData, "productList");
 
   return (
     <Fragment>

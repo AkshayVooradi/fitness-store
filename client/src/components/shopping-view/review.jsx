@@ -18,7 +18,6 @@ function WriteReview(id) {
   }
 
   function handleAddReview() {
-    console.log(true);
     dispatch(
       addReview({
         productId: id.productId,
@@ -29,7 +28,7 @@ function WriteReview(id) {
       if (data?.payload?.success) {
         setRating(0);
         setReviewMsg("");
-        dispatch(getReviews(id));
+        dispatch(getReviews(id.productId));
         toast({
           title: data?.payload?.message,
         });

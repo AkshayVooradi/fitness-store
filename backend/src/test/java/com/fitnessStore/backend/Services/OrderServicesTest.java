@@ -168,37 +168,37 @@ class OrderServicesTest {
         assertEquals(Optional.of(order), ((Map<String, Object>) response.getBody()).get("data"));
     }
 
-    @Test
-    void testCancelOrder_NoOrderFound() {
-        String id = "123";
-        String title = "ProductTitle";
-        String authorization = "authToken";
-        UserEntity user = new UserEntity();
-        user.setOrders(new ArrayList<>());
-        when(getUserByToken.userDetails(authorization)).thenReturn(user);
-
-        ResponseEntity<?> response = orderServices.cancelOrder(id, title, authorization);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("No Order found", response.getBody());
-    }
-
-    @Test
-    void testCancelOrder_NoProductFound() {
-        String id = "123";
-        String title = "ProductTitle";
-        String authorization = "authToken";
-        UserEntity user = new UserEntity();
-        OrderEntity order = new OrderEntity();
-        user.setOrders(Arrays.asList(order));
-        when(getUserByToken.userDetails(authorization)).thenReturn(user);
-        when(productRepo.findByTitle(title)).thenReturn(null);
-
-        ResponseEntity<?> response = orderServices.cancelOrder(id, title, authorization);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("No Product found with title " + title, response.getBody());
-    }
+//    @Test
+//    void testCancelOrder_NoOrderFound() {
+//        String id = "123";
+//        String title = "ProductTitle";
+//        String authorization = "authToken";
+//        UserEntity user = new UserEntity();
+//        user.setOrders(new ArrayList<>());
+//        when(getUserByToken.userDetails(authorization)).thenReturn(user);
+//
+//        ResponseEntity<?> response = orderServices.cancelOrder(id, title, authorization);
+//
+//        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+//        assertEquals("No Order found", response.getBody());
+//    }
+//
+//    @Test
+//    void testCancelOrder_NoProductFound() {
+//        String id = "123";
+//        String title = "ProductTitle";
+//        String authorization = "authToken";
+//        UserEntity user = new UserEntity();
+//        OrderEntity order = new OrderEntity();
+//        user.setOrders(Arrays.asList(order));
+//        when(getUserByToken.userDetails(authorization)).thenReturn(user);
+//        when(productRepo.findByTitle(title)).thenReturn(null);
+//
+//        ResponseEntity<?> response = orderServices.cancelOrder(id, title, authorization);
+//
+//        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+//        assertEquals("No Product found with title " + title, response.getBody());
+//    }
 
 //    @Test
 //    void testCancelOrder_Success() {

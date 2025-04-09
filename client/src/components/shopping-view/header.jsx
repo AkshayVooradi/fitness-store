@@ -76,10 +76,8 @@ function HeaderRightContent() {
   }
 
   useEffect(() => {
-    dispatch(fetchCartItems(user?.id));
+    dispatch(fetchCartItems());
   }, [dispatch]);
-
-  console.log(cartItems, true);
 
   return (
     <div className="flex lg:items-center lg:flex-row flex-col gap-4">

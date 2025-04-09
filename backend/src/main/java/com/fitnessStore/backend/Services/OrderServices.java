@@ -157,47 +157,57 @@ public class OrderServices {
         return new ResponseEntity<>(responseBody,HttpStatus.OK);
     }
 
-    public ResponseEntity<?> cancelOrder(String id, String title, String authorization) {
-        UserEntity user = getUserByToken.userDetails(authorization);
+    public ResponseEntity<?> cancelOrder(String id, String token) {
 
-        List<OrderEntity> orders = user.getOrders();
+        Map<String,Object> responseBody = new HashMap<>();
 
-        if(orders.isEmpty()){
-            return new ResponseEntity<>("No Order found",HttpStatus.NOT_FOUND);
+        if(id.isEmpty()){
+
+            responseBody.put("success",false);
+            responseBody.put("message","id is empty");
+
+            return new ResponseEntity<>(responseBody,HttpStatus.OK);
         }
 
-        ProductEntity product = productRepo.findByTitle(title);
+        Optional<OrderEntity> order = orderRepo.findById(id);
 
-        if(product == null){
-            return new ResponseEntity<>("No Product found with title "+title,HttpStatus.NOT_FOUND);
+        if(order.isEmpty()){
+
+            responseBody.put("success",false);
+            responseBody.put("message","order not found");
+
+            return new ResponseEntity<>(responseBody,HttpStatus.NOT_FOUND);
         }
 
-        boolean updated = false;
+        if(order.get().isCancelled()){
 
-        ObjectId objectId = new ObjectId(id);
+            responseBody.put("success",false);
+            responseBody.put("message","Cannot change the orderStatus for this order");
 
-        for(OrderEntity order: orders){
-            if(updated){
-                break;
+            return new ResponseEntity<>(responseBody,HttpStatus.BAD_REQUEST);
+        }
+
+        order.get().setCancelled(true);
+        order.get().setOrderStatus("cancelled");
+
+        for(CartItemClass item : order.get().getCartItems()){
+
+            Optional<ProductEntity> product = productRepo.findById(item.getProductId());
+
+            if(product.isEmpty()){
+                throw new IllegalArgumentException("Product's stock wasn't updated properly");
             }
-//            if(order.getId().equals(objectId)){
-//                List<CartItemClass> products = order.getProducts();
-//                for(CartItemClass item : products){
-//                    if(item.getProduct().equals(product) &&
-//                            (item.getStatus().equals("Under Packaging") || item.getStatus().equals("Out For Delivery"))){
-//                        item.setStatus("Cancelled");
-//                        orderRepo.save(order);
-//                        updated= true;
-//                        break;
-//                    }
-//                }
-//            }
+
+            product.get().setTotalStock(product.get().getTotalStock()+item.getQuantity());
+
+            productRepo.save(product.get());
         }
 
-        if(!updated){
-            return new ResponseEntity<>("Item has already been delivered, cannot cancel now!",HttpStatus.BAD_REQUEST);
-        }
+        orderRepo.save(order.get());
 
-        return new ResponseEntity<>("Cancelled successfully",HttpStatus.OK);
+        responseBody.put("success",true);
+        responseBody.put("message","Cancelled the Order");
+
+        return new ResponseEntity<>(responseBody,HttpStatus.OK);
     }
 }
