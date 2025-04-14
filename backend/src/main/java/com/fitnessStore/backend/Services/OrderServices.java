@@ -159,7 +159,16 @@ public class OrderServices {
 
     public ResponseEntity<?> cancelOrder(String id, String token) {
 
+        UserEntity user = getUserByToken.userDetails(token);
+
         Map<String,Object> responseBody = new HashMap<>();
+
+        if(user == null){
+            responseBody.put("success",false);
+            responseBody.put("message","No user found");
+
+            return new ResponseEntity<>(responseBody,HttpStatus.OK);
+        }
 
         if(id.isEmpty()){
 
@@ -189,6 +198,14 @@ public class OrderServices {
 
         order.get().setCancelled(true);
         order.get().setOrderStatus("cancelled");
+
+        if(order.get().getCartItems()==null){
+
+            responseBody.put("success",false);
+            responseBody.put("message","Cart is empty");
+
+            return new ResponseEntity<>(responseBody,HttpStatus.BAD_REQUEST);
+        }
 
         for(CartItemClass item : order.get().getCartItems()){
 

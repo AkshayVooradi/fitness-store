@@ -20,10 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -168,64 +165,78 @@ class OrderServicesTest {
         assertEquals(Optional.of(order), ((Map<String, Object>) response.getBody()).get("data"));
     }
 
-//    @Test
-//    void testCancelOrder_NoOrderFound() {
-//        String id = "123";
-//        String title = "ProductTitle";
-//        String authorization = "authToken";
-//        UserEntity user = new UserEntity();
-//        user.setOrders(new ArrayList<>());
-//        when(getUserByToken.userDetails(authorization)).thenReturn(user);
-//
-//        ResponseEntity<?> response = orderServices.cancelOrder(id, title, authorization);
-//
-//        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-//        assertEquals("No Order found", response.getBody());
-//    }
-//
-//    @Test
-//    void testCancelOrder_NoProductFound() {
-//        String id = "123";
-//        String title = "ProductTitle";
-//        String authorization = "authToken";
-//        UserEntity user = new UserEntity();
-//        OrderEntity order = new OrderEntity();
-//        user.setOrders(Arrays.asList(order));
-//        when(getUserByToken.userDetails(authorization)).thenReturn(user);
-//        when(productRepo.findByTitle(title)).thenReturn(null);
-//
-//        ResponseEntity<?> response = orderServices.cancelOrder(id, title, authorization);
-//
-//        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-//        assertEquals("No Product found with title " + title, response.getBody());
-//    }
+    @Test
+    void testCancelOrder_NoOrderFound() {
+        String id = "123";
+        String authorization = "authToken";
+        UserEntity user = new UserEntity();
+        user.setOrders(new ArrayList<>());
+        when(getUserByToken.userDetails(authorization)).thenReturn(user);
 
-//    @Test
-//    void testCancelOrder_Success() {
-//        String id = new ObjectId().toHexString();
-//        String title = "ProductTitle";
-//        String authorization = "authToken";
-//        UserEntity user = new UserEntity();
-//        OrderEntity order = new OrderEntity();
-//        order.setId(id);
-//
-//        ProductEntity product = new ProductEntity();
-//        product.setTitle(title);
-//
-//        CartItemClass item = new CartItemClass();
-//        item.setProduct(product);
-//
-//        order.setCartItems(Arrays.asList(item));
-//        user.setOrders(Arrays.asList(order));
-//
-//        when(getUserByToken.userDetails(authorization)).thenReturn(user);
-//        when(productRepo.findByTitle(title)).thenReturn(product);
-//        when(orderRepo.findById(id)).thenReturn(Optional.of(order));
-//
-//        ResponseEntity<?> response = orderServices.cancelOrder(id, title, authorization);
-//
-//        assertEquals(HttpStatus.OK, response.getStatusCode());
-//        assertEquals("Cancelled successfully", response.getBody());
-//    }
+        ResponseEntity<?> response = orderServices.cancelOrder(id, authorization);
+
+        Map<String,Object> responseBody= new HashMap<>();
+        responseBody.put("success",false);
+        responseBody.put("message","order not found");
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(responseBody, response.getBody());
+    }
+
+    @Test
+    void testCancelOrder_EmptyCart() {
+        String id = "123";
+        String authorization = "authToken";
+        UserEntity user = new UserEntity();
+        OrderEntity order = new OrderEntity();
+        user.setOrders(Arrays.asList(order));
+        when(getUserByToken.userDetails(authorization)).thenReturn(user);
+        when(orderRepo.findById(id)).thenReturn(Optional.of(order));
+
+        ResponseEntity<?> response = orderServices.cancelOrder(id, authorization);
+
+        Map<String,Object> responseBody= new HashMap<>();
+        responseBody.put("success",false);
+        responseBody.put("message","Cart is empty");
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(responseBody, response.getBody());
+    }
+
+    @Test
+    void testCancelOrder_Success() {
+        String id = new ObjectId().toHexString();
+        String title = "ProductTitle";
+        String prodId = new ObjectId().toHexString();
+        String authorization = "authToken";
+        UserEntity user = new UserEntity();
+        OrderEntity order = new OrderEntity();
+        order.setId(id);
+
+        ProductEntity product = new ProductEntity();
+        product.setTitle(title);
+        product.setId(prodId);
+
+        CartItemClass item = new CartItemClass();
+        item.setProduct(product);
+        item.setProductId(prodId);
+
+        order.setCartItems(Arrays.asList(item));
+        user.setOrders(Arrays.asList(order));
+
+        when(getUserByToken.userDetails(authorization)).thenReturn(user);
+        when(productRepo.findById(prodId)).thenReturn(Optional.of(product));
+        when(orderRepo.findById(id)).thenReturn(Optional.of(order));
+
+        ResponseEntity<?> response = orderServices.cancelOrder(id, authorization);
+
+        Map<String,Object> responseBody = new HashMap<>();
+
+        responseBody.put("success",true);
+        responseBody.put("message","Cancelled the Order");
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(responseBody, response.getBody());
+    }
 
 }
